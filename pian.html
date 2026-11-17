@@ -1,0 +1,632 @@
+<!doctype html>
+<html lang="ro">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Primele note la pian</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1d1a17">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;700&display=swap">
+<style>
+/* Layout: o bandă sus (conexiunea), lecțiile în stânga, portativul + claviatura în dreapta; pe telefon totul pe o coloană. */
+:root{
+  --bg:#f3efe7; --panel:#fffdf8; --ink:#1d1a17; --muted:#6c645a; --line:#d9d1c4;
+  --accent:#1f6f5c; --accent-ink:#ffffff; --target:#f2b33d; --good:#2e9e5b; --bad:#d23c3c;
+  --white-key:#fbfaf6; --black-key:#1b1917; --staff:#2a2622;
+  --display:"Fraunces",Georgia,serif; --body:"Inter",system-ui,-apple-system,sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme:dark){:root{
+  --bg:#151311; --panel:#1f1c19; --ink:#f1ebe2; --muted:#a59c90; --line:#3a352f;
+  --accent:#4fb79a; --accent-ink:#0c1512; --target:#f2b33d; --good:#4cc47e; --bad:#ff6b6b;
+  --white-key:#ece8e0; --black-key:#0d0c0b; --staff:#e8e1d6; color-scheme:dark}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body)}
+.wrap{max-width:1180px;margin:0 auto;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
+header{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;justify-content:space-between}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(26px,4vw,38px);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 small{display:block;font:500 13px/1.4 var(--body);color:var(--muted);letter-spacing:.02em}
+.conn{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.pill{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:13px;color:var(--muted)}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
+.dot.on{background:var(--good)}
+button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 14px}
+button:hover{border-color:var(--accent)}
+button:focus-visible,select:focus-visible{outline:3px solid var(--target);outline-offset:2px}
+button.main{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+.grid{display:grid;grid-template-columns:290px minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
+.lessons{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px;display:grid;gap:4px}
+.lessons h2{font:700 11px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:10px 8px 6px}
+.les{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;text-align:left;border:0;background:none;padding:9px 8px;border-radius:9px}
+.les:hover{background:color-mix(in srgb,var(--accent) 9%,transparent)}
+.les.sel{background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.les .n{font:700 13px var(--body);color:var(--muted);text-align:center}
+.les .t{font-weight:600}
+.les .s{font-size:13px;color:var(--target);letter-spacing:1px;white-space:nowrap}
+.stage{display:grid;gap:14px;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0}
+.title{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:space-between}
+.title h2{font-family:var(--display);font-weight:600;font-size:26px;margin:0}
+.desc{color:var(--muted);margin:6px 0 0;max-width:68ch}
+.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+label.chk{display:inline-flex;gap:6px;align-items:center;font-size:14px;color:var(--muted);margin-left:4px}
+.msg{min-height:58px;display:flex;align-items:center;gap:14px;font-size:19px;font-weight:600}
+.msg .big{font-family:var(--display);font-size:40px;line-height:1;min-width:2ch;white-space:nowrap;flex-shrink:0}
+.msg.ok{color:var(--good)} .msg.bad{color:var(--bad)}
+.stats{display:flex;gap:18px;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink)}
+.staffbox{overflow-x:auto}
+svg.staff{display:block;width:100%;min-width:520px;height:180px}
+.kbbox{overflow-x:auto;padding-bottom:6px}
+.pedal{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;color:var(--muted);transition:background .1s,border-color .1s}
+.pedal .pdot{width:14px;height:14px;border-radius:50%;background:#555;flex-shrink:0}
+.pedal b{color:var(--ink)}
+.pedal .pnote{font-size:12px;margin-left:auto}
+.pedal.on{background:color-mix(in srgb,var(--target) 22%,transparent);border-color:var(--target)}
+.pedal.on .pdot{background:var(--target);box-shadow:0 0 10px var(--target)}
+.pedal.on b{color:var(--target)}
+.minicap{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted);margin-bottom:6px;letter-spacing:.04em}
+.mini{position:relative;height:44px;margin-bottom:16px}
+.mini .mw{position:absolute;top:0;height:44px;background:var(--white-key);border:1px solid #b9b0a3;border-radius:0 0 3px 3px}
+.mini .mb{position:absolute;top:0;height:27px;background:var(--black-key);z-index:2}
+.mini .mw.target,.mini .mb.target{background:var(--target)}
+.mini .mw.down,.mini .mb.down{background:#8fd3b0}
+.mini .c4{background:color-mix(in srgb,var(--accent) 35%,var(--white-key))}
+.mini .zoom{position:absolute;top:-5px;height:54px;border:3px solid var(--accent);border-radius:7px;z-index:3;pointer-events:none;transition:left .5s ease,width .5s ease,opacity .3s}
+.kb.zoomin{animation:zoomin .5s ease}
+@keyframes zoomin{from{transform:scaleX(.35);opacity:.3}to{transform:none;opacity:1}}
+.kb.tot{min-width:1250px}
+.kb.tot .wk{font-size:9px;padding-bottom:5px}
+.kb.tot .finger{font-size:13px}
+.kb{position:relative;height:190px;min-width:760px;user-select:none;touch-action:manipulation}
+.wk,.bk{position:absolute;top:0;border-radius:0 0 8px 8px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;font-size:11px;padding-bottom:8px;transition:background .08s}
+.wk{background:var(--white-key);border:1px solid #b9b0a3;height:190px;color:#5b544b;z-index:1}
+.bk{background:var(--black-key);height:118px;z-index:2;color:#bbb;border:1px solid #000}
+.wk .lab{font-weight:700;color:#3f3a33}
+.wk.c4 .lab{color:var(--accent)}
+.de{font:800 15px var(--body);color:#1d1a17;line-height:1;margin-bottom:3px}
+.bk .de{color:#fff;font-size:11px;background:#000;padding:1px 2px}
+.wk.c4 .de{color:#d0021b}
+.kb.tot .de{font-size:10px}
+.wk.wrong .de,.bk.wrong .de{color:#fff}
+.wk.c4::after{content:"★";position:absolute;bottom:52px;font-size:14px;color:var(--accent)}
+.wk.target,.bk.target{background:var(--target)}
+.wk.down,.bk.down{background:#8fd3b0}
+.wk.wrong,.bk.wrong{background:var(--bad);color:#fff}
+.finger{font:800 18px var(--display);color:#1d1a17;margin-bottom:6px}
+.result{display:grid;gap:8px}
+.result .stars{font-size:38px;color:var(--target);letter-spacing:4px}
+.help{font-size:14px;color:var(--muted);display:grid;gap:6px}
+.help b{color:var(--ink)}
+kbd{font:600 12px var(--body);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;background:var(--panel)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Primele note la pian <small>Yamaha P-45 · apeși clapa, aplicația îți spune dacă e bine</small></h1>
+    <div class="conn">
+      <span class="pill"><span class="dot" id="midiDot"></span><span id="midiTxt">Pianul nu e conectat</span></span>
+      <button id="micBtn">Folosește microfonul</button>
+    </div>
+  </header>
+
+  <div class="grid">
+    <nav class="lessons" id="lessons" aria-label="Lecții"></nav>
+
+    <section class="stage">
+      <div class="card">
+        <div class="title"><h2 id="lTitle"></h2><div class="stats"><span>Nota <b id="pos">0/0</b></span><span>Greșeli <b id="errs">0</b></span><span>La timp <b id="timp">–</b></span></div></div>
+        <p class="desc" id="lDesc"></p>
+        <div class="controls">
+          <button class="main" id="startBtn">Începe</button>
+          <button id="listenBtn">Ascultă întâi</button>
+          <label class="chk"><input type="checkbox" id="hint" checked> Arată clapa pe care o apeși</label>
+          <label class="chk"><input type="checkbox" id="sound" checked> Sunet din calculator</label>
+        </div>
+        <div class="controls">
+          <label class="chk"><input type="checkbox" id="ritm"> <b>Cu ritm</b>: metronomul bate, cânți la timp și ții nota cât trebuie</label>
+          <label class="chk">Viteza <input type="range" id="bpm" min="40" max="120" step="5" value="60"> <b id="bpmTxt">60</b> bătăi pe minut</label>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="msg" id="msg"><span class="big" id="msgBig">🎹</span><span id="msgTxt">Alege o lecție din stânga și apasă „Începe”.</span></div>
+        <div class="staffbox"><svg class="staff" id="staff" viewBox="0 0 900 180" role="img" aria-label="Portativul cu notele lecției"></svg></div>
+      </div>
+
+      <div class="card">
+        <div class="minicap"><span>Tot pianul, 88 de clape</span><span id="zoomTxt">Apasă „Începe” și mă apropii de clapele din lecție</span></div>
+        <div class="mini" id="mini"><div class="zoom" id="zoom" style="opacity:0"></div></div>
+        <div class="pedal" id="pedal" title="Pedala de sustain (cea de la picior)"><span class="pdot"></span><span>Pedala: <b id="pedalTxt">ridicată</b></span><span class="pnote" id="pedalNote">Apasă pedala ca să verifici; aici se vede când e apăsată.</span></div>
+        <div class="kbbox"><div class="kb" id="kb"></div></div>
+      </div>
+
+      <div class="card help">
+        <b>Cum exersezi ca să înveți repede</b>
+        <span><b>Întâi fără ritm, apoi cu ritm.</b> Înveți notele și degetele în modul obișnuit, care te așteaptă. Când iei 3 stele, bifezi „Cu ritm”.</span>
+        <span><b>Începe încet.</b> Pune viteza atât de jos încât să nu greșești deloc, chiar 40. Crește cu 5 doar după ce iei 3 stele. Așa lucrează profesorii de pian.</span>
+        <span><b>Nu te opri la greșeală.</b> În modul cu ritm, dacă ratezi o notă, mergi mai departe, ca la un concert.</span>
+        <span><b>Puțin și des, odihnit.</b> 15–20 de minute pe zi, nu când ești obosit. Fă o pauză scurtă între lecții.</span>
+        <span><b>Degetul arătat, de la început.</b> Aplicația vede doar clapa, nu și degetul, așa că aici ești tu atent.</span>
+      </div>
+
+      <div class="card help" id="helpCard">
+        <b>Cum legi pianul de Mac</b>
+        <span>În spatele pianului e mufa <b>USB TO HOST</b> (pătrată). Ai nevoie de un cablu USB-B la USB-C (cablu „de imprimantă”). Îl bagi în Mac, deschizi pagina asta în <b>Google Chrome</b> și, sus, scrie „Yamaha conectat”. Dacă Chrome întreabă de dispozitive MIDI, apeși „Permite”.</span>
+        <span>Fără cablu: apasă <b>Folosește microfonul</b> și cântă câte o notă pe rând, cu volumul pianului la jumătate. Merge, dar mai greu decât cu cablul.</span>
+        <span>Steluța <b>★</b> și litera <b style="color:#d0021b">C</b> roșie de pe claviatură arată Do central, ca abțibildul roșu de pe pian. Literele sunt cele de pe abțibilduri: C D E F G A H = Do Re Mi Fa Sol La Si (H e Si, ca în Germania).</span>
+        <span>Ca să încerci fără pian: tastele <kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><kbd>F</kbd><kbd>G</kbd><kbd>H</kbd><kbd>J</kbd><kbd>K</kbd> sunt Do Re Mi Fa Sol La Si Do, iar <kbd>W</kbd><kbd>E</kbd><kbd>T</kbd><kbd>Y</kbd><kbd>U</kbd> sunt clapele negre. Poți și să dai click pe clape.</span>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+// ---------- pedala (MIDI CC 64, sustain) ----------
+function setPedal(on) {
+  $("pedal").classList.toggle("on", on);
+  $("pedalTxt").textContent = on ? "APĂSATĂ" : "ridicată";
+  $("pedalNote").textContent = on ? "Notele continuă să sune după ce ridici degetul." : "Notele se opresc când ridici degetul.";
+}
+// ---------- note ----------
+const RO = ["Do","Do#","Re","Re#","Mi","Fa","Fa#","Sol","Sol#","La","La#","Si"];
+const DE = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","H"]; // literele de pe abțibildurile pianului (în germană: H, nu B)
+const nume = m => `${RO[m % 12]} (${DE[m % 12]})`;
+const ro = m => RO[m % 12];
+let LO = 21, HI = 108;               // claviatura mare: la început tot pianul (La0 … Do8), apoi doar clapele lecției
+const N = (m, f = null, d = 1) => ({ m, f, d });
+const seq = (ms, fs, ds) => ms.map((m, i) => N(m, fs ? fs[i] : null, ds ? ds[i] : 1));
+
+const C4 = 60, D4 = 62, E4 = 64, F4 = 65, G4 = 67, A4 = 69, B4 = 71, C5 = 72;
+const FD = { 60: 1, 62: 2, 64: 3, 65: 4, 67: 5 }; // poziția Do: degetul pe fiecare notă
+const fd = ms => ms.map(m => FD[m] ?? null);
+
+const LECTII = [
+  { grup: "Primii pași", t: "Găsește Do central", d: "Do este clapa albă din stânga grupului de două clape negre. Do central e cel din mijlocul pianului, cam sub numele Yamaha. Apasă-l de trei ori, cu degetul mare al mâinii drepte (degetul 1).",
+    note: seq([C4, C4, C4], [1, 1, 1]) },
+  { t: "Do, Re, Mi", d: "Pui mâna dreaptă cu degetul mare pe Do. Degetul 2 cade pe Re, degetul 3 pe Mi. Urci și cobori.",
+    note: seq([C4, D4, E4, D4, C4, E4, D4, C4], fd([C4, D4, E4, D4, C4, E4, D4, C4])) },
+  { t: "Cinci degete", d: "Fiecare deget are clapa lui: 1 pe Do, 2 pe Re, 3 pe Mi, 4 pe Fa, 5 pe Sol. Nu muta mâna.",
+    note: seq([C4, D4, E4, F4, G4, F4, E4, D4, C4], fd([C4, D4, E4, F4, G4, F4, E4, D4, C4])) },
+  { t: "Sărituri", d: "Tot cu mâna în poziția Do, dar acum sari peste o clapă: Do-Mi, Re-Fa, Mi-Sol.",
+    note: seq([C4, E4, D4, F4, E4, G4, E4, C4], fd([C4, E4, D4, F4, E4, G4, E4, C4])) },
+  { t: "Mâna stângă", d: "Mâna stângă, cu degetul mic (5) pe Do-ul de sub Do central. Urci până la Sol cu degetul mare (1), apoi cobori.",
+    note: seq([48, 50, 52, 53, 55, 53, 52, 50, 48], [5, 4, 3, 2, 1, 2, 3, 4, 5]), cheie: "fa" },
+
+  { grup: "Scale", t: "Scala Do major", d: "Opt clape albe, de la Do la Do. După Mi, degetul mare trece pe sub mână și cade pe Fa. La coborâre, degetul 3 trece peste, pe Mi.",
+    note: seq([60, 62, 64, 65, 67, 69, 71, 72, 71, 69, 67, 65, 64, 62, 60], [1, 2, 3, 1, 2, 3, 4, 5, 4, 3, 2, 1, 3, 2, 1]) },
+
+  { grup: "Melodii", t: "Sclipește, steluță", d: "Cântecelul „Ah, vous dirai-je, maman”, pe care l-a folosit și Mozart. Ai nevoie de șase clape: Do, Re, Mi, Fa, Sol, La.",
+    note: seq([60,60,67,67,69,69,67, 65,65,64,64,62,62,60, 67,67,65,65,64,64,62, 67,67,65,65,64,64,62, 60,60,67,67,69,69,67, 65,65,64,64,62,62,60],
+              [1,1,5,5,5,5,5, 4,4,3,3,2,2,1, 5,5,4,4,3,3,2, 5,5,4,4,3,3,2, 1,1,5,5,5,5,5, 4,4,3,3,2,2,1],
+              [1,1,1,1,1,1,2, 1,1,1,1,1,1,2, 1,1,1,1,1,1,2, 1,1,1,1,1,1,2, 1,1,1,1,1,1,2, 1,1,1,1,1,1,2]) },
+  { t: "Frate Ioane", d: "Canonul vechi „Frère Jacques”. Ultimul rând coboară la Sol-ul de sub Do central: întinde degetul mare.",
+    note: seq([60,62,64,60, 60,62,64,60, 64,65,67, 64,65,67, 67,69,67,65,64,60, 67,69,67,65,64,60, 60,55,60, 60,55,60],
+              [1,2,3,1, 1,2,3,1, 3,4,5, 3,4,5, 4,5,4,3,2,1, 4,5,4,3,2,1, 2,1,2, 2,1,2],
+              [1,1,1,1, 1,1,1,1, 1,1,2, 1,1,2, .5,.5,.5,.5,1,1, .5,.5,.5,.5,1,1, 1,1,2, 1,1,2]) },
+  { t: "Oda bucuriei", d: "Tema lui Beethoven din Simfonia a 9-a. Toată în poziția Do, cu cele cinci degete.",
+    note: seq([64,64,65,67, 67,65,64,62, 60,60,62,64, 64,62,62, 64,64,65,67, 67,65,64,62, 60,60,62,64, 62,60,60],
+              fd([64,64,65,67, 67,65,64,62, 60,60,62,64, 64,62,62, 64,64,65,67, 67,65,64,62, 60,60,62,64, 62,60,60]),
+              [1,1,1,1, 1,1,1,1, 1,1,1,1, 1.5,.5,2, 1,1,1,1, 1,1,1,1, 1,1,1,1, 1.5,.5,2]) },
+
+  { grup: "Citit note", t: "Citește notele", d: "Vezi nota pe portativ și o cânți. Clapa nu mai e arătată, trebuie s-o recunoști singur. 20 de note, între Do central și Sol de sus.",
+    quiz: true, hint: false },
+];
+
+// ---------- stare ----------
+let L = 0, notes = [], i = 0, errs = 0, wrongBy = {}, running = false, playing = false, done = false;
+let best = {};
+try { best = JSON.parse(localStorage.getItem("pian-best") || "{}"); } catch (e) {}
+const $ = id => document.getElementById(id);
+
+// ---------- claviatura ----------
+const isBlack = m => [1, 3, 6, 8, 10].includes(m % 12);
+let keyEl = {}, miniEl = {};
+function buildMini() {
+  const box = $("mini"), whites = []; for (let m = 21; m <= 108; m++) if (!isBlack(m)) whites.push(m);
+  const w = 100 / whites.length;
+  whites.forEach((m, k) => { const e = document.createElement("div"); e.className = "mw" + (m === 60 ? " c4" : "");
+    e.style.left = k * w + "%"; e.style.width = w + "%"; box.appendChild(e); miniEl[m] = e; });
+  for (let m = 22; m <= 108; m++) if (isBlack(m)) { const k = whites.indexOf(m - 1), e = document.createElement("div");
+    e.className = "mb"; e.style.left = ((k + 1) * w - w * 0.3) + "%"; e.style.width = w * 0.6 + "%"; box.appendChild(e); miniEl[m] = e; }
+}
+const pozMini = m => { const whites = []; for (let x = 21; x <= 108; x++) if (!isBlack(x)) whites.push(x); return whites.indexOf(m) / whites.length * 100; };
+function intervalLectie(ns) {
+  const mn = Math.min(...ns.map(n => n.m)), mx = Math.max(...ns.map(n => n.m));
+  let lo = mn - mn % 12, hi = mx % 12 ? mx + 12 - mx % 12 : mx;
+  if (hi <= lo) hi = lo + 12;
+  while (hi - lo < 24) { if (mn - lo <= hi - mx && lo - 12 >= 21) lo -= 12; else if (hi + 12 <= 108) hi += 12; else lo -= 12; }
+  return [Math.max(21, lo), Math.min(108, hi)];
+}
+function zoomTo(lo, hi) {
+  const z = $("zoom");
+  if (lo === 21 && hi === 108) { z.style.opacity = 0; $("zoomTxt").textContent = "Apasă „Începe” și mă apropii de clapele din lecție"; }
+  else { const a = pozMini(lo), b = pozMini(hi) + 100 / 52; z.style.left = a + "%"; z.style.width = (b - a) + "%"; z.style.opacity = 1;
+    $("zoomTxt").textContent = `Lecția folosește doar clapele din chenar: de la ${nume(lo)} la ${nume(hi)}`; }
+  if (lo === LO && hi === HI) return;
+  LO = lo; HI = hi; buildKb();
+  const kb = $("kb"); kb.classList.remove("zoomin"); void kb.offsetWidth; if (!(lo === 21 && hi === 108)) kb.classList.add("zoomin");
+}
+function buildKb() {
+  const kb = $("kb"); kb.innerHTML = ""; keyEl = {};
+  kb.classList.toggle("tot", HI - LO > 48);
+  const whites = []; for (let m = LO; m <= HI; m++) if (!isBlack(m)) whites.push(m);
+  const w = 100 / whites.length;
+  whites.forEach((m, k) => {
+    const e = document.createElement("div");
+    e.className = "wk" + (m === 60 ? " c4" : "");
+    e.style.left = (k * w) + "%"; e.style.width = w + "%";
+    const tot = HI - LO > 48;
+    const lab = tot ? (m % 12 === 0 ? "Do" : "") : ro(m);
+    e.innerHTML = `<span class="finger"></span><span class="de">${DE[m % 12]}</span><span class="lab">${lab}</span>`;
+    kb.appendChild(e); keyEl[m] = e;
+  });
+  for (let m = LO; m <= HI; m++) if (isBlack(m)) {
+    const k = whites.indexOf(m - 1);
+    const e = document.createElement("div");
+    e.className = "bk"; e.style.left = ((k + 1) * w - w * 0.3) + "%"; e.style.width = (w * 0.6) + "%";
+    e.innerHTML = `<span class="finger" style="color:#fff"></span>` + (HI - LO > 48 ? "" : `<span class="de">${DE[m % 12]}</span>`);
+    kb.appendChild(e); keyEl[m] = e;
+  }
+  for (const [m, e] of Object.entries(keyEl)) {
+    e.addEventListener("pointerdown", ev => { ev.preventDefault(); noteOn(+m, "ecran"); });
+    e.addEventListener("pointerup", () => noteOff(+m));
+    e.addEventListener("pointerleave", () => noteOff(+m));
+  }
+  // Do central la vedere pe ecrane înguste
+  const box = document.querySelector(".kbbox");
+  requestAnimationFrame(() => { const c = keyEl[60] || keyEl[LO]; box.scrollLeft = c ? c.offsetLeft - box.clientWidth / 2 + 40 : 0; });
+}
+function clearMarks(cls) { for (const e of [...Object.values(keyEl), ...Object.values(miniEl)]) e.classList.remove(cls); }
+function showTarget() {
+  clearMarks("target");
+  for (const e of Object.values(keyEl)) e.querySelector(".finger").textContent = "";
+  if (!running || i >= notes.length || !$("hint").checked) return;
+  const n = notes[i], e = keyEl[n.m];
+  if (e) { e.classList.add("target"); if (n.f) e.querySelector(".finger").textContent = n.f; }
+  miniEl[n.m]?.classList.add("target");
+}
+
+// ---------- portativul ----------
+const STEP = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6];
+const diat = m => Math.floor(m / 12) * 7 + STEP[m % 12];
+function drawStaff() {
+  const svg = $("staff"), G = 14, top = 50, bottom = top + 4 * G;
+  const cheie = LECTII[L].cheie === "fa" ? "fa" : "sol";
+  const ref = cheie === "sol" ? diat(64) : diat(43);   // linia de jos: Mi4 la cheia sol, Sol2 la cheia fa
+  const css = getComputedStyle(document.documentElement);
+  const ink = css.getPropertyValue("--staff").trim(), tg = css.getPropertyValue("--target").trim(),
+        good = css.getPropertyValue("--good").trim(), bad = css.getPropertyValue("--bad").trim(), mut = css.getPropertyValue("--muted").trim();
+  let s = "";
+  for (let k = 0; k < 5; k++) s += `<line x1="20" x2="880" y1="${top + k * G}" y2="${top + k * G}" stroke="${ink}" stroke-width="1.4"/>`;
+  s += cheie === "sol"
+    ? `<text x="22" y="${bottom + 22}" font-size="128" fill="${ink}" font-family="'Apple Symbols','Noto Music','Segoe UI Symbol',serif">𝄞</text>`
+    : `<text x="24" y="${top + 44}" font-size="76" fill="${ink}" font-family="'Apple Symbols','Noto Music','Segoe UI Symbol',serif">𝄢</text>`;
+  if (!notes.length) { svg.innerHTML = s; return; }
+  const per = 9, start = Math.max(0, Math.min(i - 3, notes.length - per));
+  const vis = notes.slice(start, start + per);
+  vis.forEach((n, k) => {
+    const idx = start + k, x = 140 + k * 82, st = diat(n.m) - ref, y = bottom - st * G / 2;
+    let col = ink;
+    if (R) {
+      const st = R.st[idx];
+      col = st === "good" ? good : st === "late" ? "#e0892b" : (st === "miss" || st === "wrong") ? bad : (idx === i && running ? tg : ink);
+    } else {
+      if (idx < i) col = wrongBy["#" + idx] ? bad : good;
+      if (idx === i && running) col = tg;
+    }
+    for (let l = -2; l >= st; l -= 2) s += `<line x1="${x - 17}" x2="${x + 17}" y1="${bottom - l * G / 2}" y2="${bottom - l * G / 2}" stroke="${ink}" stroke-width="1.4"/>`;
+    for (let l = 10; l <= st; l += 2) s += `<line x1="${x - 17}" x2="${x + 17}" y1="${bottom - l * G / 2}" y2="${bottom - l * G / 2}" stroke="${ink}" stroke-width="1.4"/>`;
+    if (idx === i && running) s += `<rect x="${x - 30}" y="8" width="60" height="164" rx="10" fill="${tg}" opacity=".16"/>`;
+    const hollow = n.d >= 2;
+    s += `<ellipse cx="${x}" cy="${y}" rx="10" ry="7.5" transform="rotate(-20 ${x} ${y})" fill="${hollow ? "none" : col}" stroke="${col}" stroke-width="${hollow ? 2.6 : 1}"/>`;
+    const up = st < 4;
+    s += up ? `<line x1="${x + 9}" x2="${x + 9}" y1="${y - 2}" y2="${y - 46}" stroke="${col}" stroke-width="1.8"/>`
+            : `<line x1="${x - 9}" x2="${x - 9}" y1="${y + 2}" y2="${y + 46}" stroke="${col}" stroke-width="1.8"/>`;
+    if (n.d === 0.5) s += up ? `<path d="M${x + 9} ${y - 46} q14 10 10 26" fill="none" stroke="${col}" stroke-width="2"/>`
+                             : `<path d="M${x - 9} ${y + 46} q14 -10 10 -26" fill="none" stroke="${col}" stroke-width="2"/>`;
+    if (n.d === 1.5) s += `<circle cx="${x + 17}" cy="${y}" r="2.6" fill="${col}"/>`;
+    const showName = LECTII[L].hint !== false || idx < i;
+    if (showName) s += `<text x="${x}" y="170" text-anchor="middle" font-size="14" font-weight="700" fill="${idx === i && running ? tg : mut}" font-family="Inter,sans-serif">${ro(n.m)} ${DE[n.m % 12]}</text>`;
+  });
+  svg.innerHTML = s;
+}
+
+// ---------- sunet (pentru „Ascultă” și pentru tastatura de pe ecran) ----------
+let ac = null;
+function audio() { if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === "suspended") ac.resume(); return ac; }
+function tone(m, dur = 0.6, when = 0) {
+  const a = audio(), t = a.currentTime + when, f = 440 * Math.pow(2, (m - 69) / 12);
+  const g = a.createGain(); g.connect(a.destination);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.28, t + 0.01); g.gain.exponentialRampToValueAtTime(0.001, t + dur + 0.4);
+  [[1, 1], [2, 0.35], [3, 0.12]].forEach(([h, v]) => {
+    const o = a.createOscillator(), og = a.createGain(); o.type = "triangle"; o.frequency.value = f * h; og.gain.value = v;
+    o.connect(og); og.connect(g); o.start(t); o.stop(t + dur + 0.5);
+  });
+}
+
+// ---------- lecția ----------
+function quizNotes() {
+  const pool = [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79];
+  const out = []; let last = -1;
+  while (out.length < 20) { const m = pool[Math.floor(Math.random() * pool.length)]; if (m !== last) { out.push(N(m)); last = m; } }
+  return out;
+}
+function pick(k) {
+  stopRitm(); R = null;
+  L = k; running = false; playing = false; done = false; i = 0; errs = 0; wrongBy = {};
+  const les = LECTII[L];
+  notes = les.quiz ? quizNotes() : les.note;
+  $("hint").checked = les.hint !== false;
+  $("lTitle").textContent = les.t; $("lDesc").textContent = les.d;
+  $("startBtn").textContent = "Începe";
+  setMsg("🎹", "Apasă „Începe”, apoi cântă notele una câte una. Te aștept la fiecare.", "");
+  zoomTo(21, 108);
+  renderList(); update();
+  try { localStorage.setItem("pian-lectie", String(L)); } catch (e) {}
+}
+function start() {
+  stopRitm();
+  if (LECTII[L].quiz) notes = quizNotes();
+  zoomTo(...intervalLectie(notes));
+  if ($("ritm").checked) return startRitm();
+  i = 0; errs = 0; wrongBy = {}; running = true; done = false; playing = false;
+  $("startBtn").textContent = "Ia-o de la capăt";
+  setMsg(nume(notes[0].m), "Prima notă: " + nume(notes[0].m) + (notes[0].f ? ", cu degetul " + notes[0].f : "") + ".", "");
+  update();
+}
+function update() {
+  $("pos").textContent = `${Math.min(i, notes.length)}/${notes.length}`;
+  $("errs").textContent = errs;
+  $("timp").textContent = R ? `${R.st.filter(x => x === "good").length}/${notes.length}` : "–";
+  showTarget(); drawStaff();
+}
+function setMsg(big, txt, cls) { $("msgBig").textContent = big; $("msgTxt").textContent = txt; $("msg").className = "msg " + cls; }
+
+function judge(m, sursa) {
+  if (R && running) return judgeRitm(m, sursa);
+  if (!running || playing || i >= notes.length) return;
+  const want = notes[i].m;
+  const ok = m === want || (sursa === "mic" && m % 12 === want % 12);   // microfonul mai greșește octava
+  if (ok) {
+    i++;
+    if (i >= notes.length) return finish();
+    const n = notes[i];
+    setMsg("✓", `Bravo! Urmează ${nume(n.m)}` + (n.f && $("hint").checked ? `, degetul ${n.f}.` : "."), "ok");
+  } else {
+    errs++; wrongBy["#" + i] = true;
+    wrongBy[want] = (wrongBy[want] || 0) + 1;
+    const lower = m < want;
+    setMsg("✗", `Ai cântat ${nume(m)}, trebuia ${nume(want)}. ` + (m % 12 === want % 12 ? "E nota bună, dar altă octavă." : `Mergi mai ${lower ? "la dreapta" : "la stânga"}.`), "bad");
+    const e = keyEl[m]; if (e) { e.classList.add("wrong"); setTimeout(() => e.classList.remove("wrong"), 450); }
+  }
+  update();
+}
+function finish() {
+  running = false; done = true;
+  const pct = Math.round(100 * notes.length / (notes.length + errs));
+  const stars = errs === 0 ? 3 : pct >= 80 ? 2 : 1;
+  const key = String(L); if (!best[key] || stars > best[key]) { best[key] = stars; try { localStorage.setItem("pian-best", JSON.stringify(best)); } catch (e) {} }
+  const rele = Object.entries(wrongBy).filter(([k]) => !k.startsWith("#")).sort((a, b) => b[1] - a[1]).slice(0, 3)
+    .map(([m, c]) => `${nume(+m)} (${c})`);
+  setMsg("★".repeat(stars) + "☆".repeat(3 - stars),
+    errs === 0 ? "Perfect, nicio greșeală! Treci la lecția următoare." :
+    `Gata! ${errs} ${errs === 1 ? "greșeală" : "greșeli"}, ${pct}% corect. Te-ai încurcat la: ${rele.join(", ")}. Mai încearcă o dată.`, errs ? "" : "ok");
+  renderList(); update();
+}
+async function listen() {
+  if (playing) return;
+  running = false; playing = true; i = 0; update();
+  setMsg("♪", "Ascultă cum sună. Urmărește clapa galbenă.", "");
+  stopRitm(); R = null;
+  zoomTo(...intervalLectie(notes));
+  const beat = beatSec();
+  for (let k = 0; k < notes.length && playing; k++) {
+    const n = notes[k];
+    if ($("sound").checked) tone(n.m, n.d * beat);
+    clearMarks("target"); keyEl[n.m]?.classList.add("target"); miniEl[n.m]?.classList.add("target");
+    i = k; drawStaff();
+    await new Promise(r => setTimeout(r, n.d * beat * 1000));
+  }
+  clearMarks("target"); playing = false; i = 0; update();
+  setMsg("🎹", "Acum e rândul tău. Apasă „Începe”.", "");
+}
+
+// ---------- modul cu ritm ----------
+let R = null, sig = "";
+const beatSec = () => 60 / +$("bpm").value;
+const CAT = d => d >= 2 ? "două bătăi" : d === 1.5 ? "o bătaie și jumătate" : d === 0.5 ? "o jumătate de bătaie" : "o bătaie";
+function click(t, accent, loud) {
+  const a = audio(), o = a.createOscillator(), g = a.createGain();
+  o.frequency.value = accent ? 2500 : 2000; o.connect(g); g.connect(a.destination);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(loud ? 0.3 : 0.15, t + 0.002); g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+  o.start(t); o.stop(t + 0.07); R.nodes.push(o);
+}
+function startRitm() {
+  const a = audio(), b = beatSec(), lead = 4, t00 = a.currentTime + 0.3;
+  let acc = 0; const rel = notes.map(n => { const t = acc; acc += n.d; return t; });
+  const t0 = t00 + lead * b;
+  R = { t0, b, times: rel.map(x => t0 + x * b), end: t0 + acc * b, st: notes.map(() => null), hit: notes.map(() => null),
+        hold: notes.map(() => null), extra: 0, nodes: [], fin: false };
+  for (let k = 0; k < lead + Math.ceil(acc); k++) click(t00 + k * b, k % 4 === 0, k < lead);
+  running = true; done = false; i = 0; errs = 0; wrongBy = {};
+  $("startBtn").textContent = "Oprește";
+  update(); requestAnimationFrame(tickRitm);
+}
+function stopRitm() {
+  if (!R) return;
+  R.nodes.forEach(o => { try { o.stop(); } catch (e) {} });
+  R.nodes = []; if (!R.fin) running = false;
+}
+function tickRitm() {
+  if (!R || !running) return;
+  const now = audio().currentTime, tol = Math.min(0.35, R.b * 0.5);
+  if (now < R.t0) setMsg(String(Math.ceil((R.t0 - now) / R.b - 1e-6)), "Ascultă metronomul. Începi pe „1”.", "");
+  for (let k = 0; k < notes.length; k++) {
+    if (now <= R.times[k] + tol) break;
+    if (R.st[k] === null) { R.st[k] = "miss"; errs++; wrongBy[notes[k].m] = (wrongBy[notes[k].m] || 0) + 1;
+      setMsg("…", `Ai sărit peste ${nume(notes[k].m)}. Nu te opri, mergi mai departe.`, "bad"); }
+    else if (R.st[k] === "wrongp") R.st[k] = "wrong";
+  }
+  const nx = R.st.findIndex(x => x === null || x === "wrongp"); i = nx < 0 ? notes.length : nx;
+  const s2 = i + "|" + errs + "|" + R.st.join(",");
+  if (s2 !== sig) { sig = s2; update(); }
+  if (now > R.end + R.b * 0.6) return finishRitm();
+  requestAnimationFrame(tickRitm);
+}
+function flashWrong(m) { const e = keyEl[m]; if (e) { e.classList.add("wrong"); setTimeout(() => e.classList.remove("wrong"), 450); } }
+function judgeRitm(m, sursa) {
+  const now = audio().currentTime, tol = Math.min(0.35, R.b * 0.5);
+  if (now < R.t0 - tol) { setMsg("✋", "Așteaptă: încă numără metronomul.", "bad"); return; }
+  let k = -1, bd = 1e9;
+  notes.forEach((n, j) => { if (R.st[j] === null || R.st[j] === "wrongp") { const d = Math.abs(now - R.times[j]); if (d < bd) { bd = d; k = j; } } });
+  if (k < 0 || bd > tol) { R.extra++; errs++; flashWrong(m); setMsg("✗", `${nume(m)} nu era acum. Ascultă bătaia și așteaptă nota următoare.`, "bad"); return; }
+  const want = notes[k].m;
+  if (!(m === want || (sursa === "mic" && m % 12 === want % 12))) {
+    if (R.st[k] === null) { errs++; wrongBy[want] = (wrongBy[want] || 0) + 1; }
+    R.st[k] = "wrongp"; flashWrong(m);
+    setMsg("✗", `Ai cântat ${nume(m)}, trebuia ${nume(want)}.`, "bad"); return;
+  }
+  const off = Math.round((now - R.times[k]) * 1000), bun = Math.abs(off) <= Math.max(90, R.b * 150);
+  R.hit[k] = { m, t: now, src: sursa }; R.st[k] = bun ? "good" : "late";
+  setMsg(bun ? "✓" : off < 0 ? "«" : "»", bun ? "La timp!" : off < 0 ? `Puțin prea devreme (${-off} ms).` : `Puțin prea târziu (${off} ms).`, bun ? "ok" : "");
+}
+function holdRitm(m) {
+  if (!running) return;
+  for (let k = notes.length - 1; k >= 0; k--) {
+    const h = R.hit[k];
+    if (!h || h.m !== m || R.hold[k] !== null) continue;
+    if (h.src === "mic") return;              // microfonul nu știe când ai ridicat degetul
+    const held = audio().currentTime - h.t, want = notes[k].d * R.b;
+    R.hold[k] = held / want;
+    if (held < want * 0.6) setMsg("↧", `Ai ridicat degetul prea repede de pe ${nume(m)}. Ține-o ${CAT(notes[k].d)}.`, "bad");
+    return;
+  }
+}
+function finishRitm() {
+  R.fin = true; running = false; done = true;
+  const N = notes.length, nb = R.st.filter(x => x === "good" || x === "late").length, timp = R.st.filter(x => x === "good").length;
+  const h = R.hold.filter(x => x !== null), hOk = h.filter(x => x >= 0.6).length;
+  const stars = nb === N && timp >= 0.8 * N && R.extra === 0 && hOk === h.length ? 3 : nb >= 0.8 * N ? 2 : 1;
+  const key = L + "r"; if (!best[key] || stars > best[key]) { best[key] = stars; try { localStorage.setItem("pian-best", JSON.stringify(best)); } catch (e) {} }
+  const bpm = +$("bpm").value;
+  const sfat = stars === 3 ? (bpm < 120 ? `Excelent! Crește viteza la ${bpm + 5}.` : "Excelent!")
+             : timp < 0.7 * N ? `Pune viteza mai jos, la ${Math.max(40, bpm - 10)}, și încearcă din nou.`
+             : h.length && hOk < h.length ? "Ține fiecare notă până la bătaia următoare." : "Încă o dată, la aceeași viteză.";
+  setMsg("★".repeat(stars) + "☆".repeat(3 - stars),
+    `Note corecte ${nb}/${N} · la timp ${timp}/${N}` + (h.length ? ` · ținute cât trebuie ${hOk}/${h.length}` : "") + `. ${sfat}`, stars === 3 ? "ok" : "");
+  $("startBtn").textContent = "Începe";
+  renderList(); update();
+}
+
+// ---------- intrări: pian (MIDI), microfon, tastatură ----------
+const held = new Set();
+function noteOn(m, sursa) {
+  held.add(m); keyEl[m]?.classList.add("down"); miniEl[m]?.classList.add("down");
+  if (sursa !== "midi" && sursa !== "mic" && $("sound").checked) tone(m, 0.5);
+  judge(m, sursa);
+}
+function noteOff(m) { held.delete(m); keyEl[m]?.classList.remove("down"); miniEl[m]?.classList.remove("down"); if (R) holdRitm(m); }
+
+function midiStatus(acc) {
+  const ins = [...acc.inputs.values()];
+  $("midiDot").classList.toggle("on", ins.length > 0);
+  $("midiTxt").textContent = ins.length ? (ins[0].name || "Pian") + " conectat" : "Pianul nu e conectat (cablu USB)";
+  ins.forEach(inp => inp.onmidimessage = e => {
+    const [st, d1, d2] = e.data, c = st & 0xf0;
+    if (c === 0xB0 && d1 === 64) { setPedal(d2 >= 64); return; }
+    if (c === 0x90 && d2 > 0) noteOn(d1, "midi");
+    else if (c === 0x80 || (c === 0x90 && d2 === 0)) noteOff(d1);
+  });
+}
+if (navigator.requestMIDIAccess) {
+  navigator.requestMIDIAccess().then(acc => { midiStatus(acc); acc.onstatechange = () => midiStatus(acc); })
+    .catch(() => { $("midiTxt").textContent = "Chrome n-a primit voie la pian (MIDI)"; });
+} else $("midiTxt").textContent = "Deschide pagina în Google Chrome pentru cablu";
+
+// microfonul: recunoaște o singură notă odată (autocorelație)
+let micOn = false;
+$("micBtn").onclick = async () => {
+  if (micOn) return;
+  try {
+    const a = audio(), st = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } });
+    const src = a.createMediaStreamSource(st), an = a.createAnalyser(); an.fftSize = 4096; src.connect(an);
+    const buf = new Float32Array(an.fftSize);
+    micOn = true; $("micBtn").textContent = "Microfon pornit"; $("micBtn").disabled = true;
+    let lastRms = 0, armed = true, cand = -1, candN = 0, cur = -1;
+    (function loop() {
+      an.getFloatTimeDomainData(buf);
+      let rms = 0; for (const v of buf) rms += v * v; rms = Math.sqrt(rms / buf.length);
+      const onset = rms > 0.02 && rms > lastRms * 1.6;
+      if (onset) { armed = true; candN = 0; }
+      if (rms < 0.008) { armed = true; if (cur >= 0) { noteOff(cur); cur = -1; } }
+      if (armed && rms > 0.02 && !playing) {
+        const f = pitch(buf, a.sampleRate);
+        if (f) {
+          const m = Math.round(69 + 12 * Math.log2(f / 440));
+          if (m === cand) candN++; else { cand = m; candN = 1; }
+          if (candN >= 3 && m >= 36 && m <= 88) { armed = false; if (cur >= 0) noteOff(cur); cur = m; noteOn(m, "mic"); }
+        }
+      }
+      lastRms = rms * 0.7 + lastRms * 0.3;
+      requestAnimationFrame(loop);
+    })();
+  } catch (e) { setMsg("🎤", "Nu am primit voie la microfon. Permite-l din bara de adrese a lui Chrome.", "bad"); }
+};
+function pitch(b, sr) {
+  const n = b.length / 2, lo = Math.floor(sr / 1100), hi = Math.floor(sr / 60);
+  let best = -1, bestV = 0, r0 = 0; for (let k = 0; k < n; k++) r0 += b[k] * b[k];
+  const corr = new Float32Array(hi + 2);
+  for (let lag = lo; lag <= hi + 1; lag++) { let s = 0; for (let k = 0; k < n; k++) s += b[k] * b[k + lag]; corr[lag] = s; }
+  for (let lag = lo + 1; lag <= hi; lag++) if (corr[lag] > corr[lag - 1] && corr[lag] >= corr[lag + 1] && corr[lag] > bestV) { bestV = corr[lag]; best = lag; }
+  if (best < 0 || bestV / r0 < 0.5) return null;
+  // primul vârf aproape la fel de mare (evită octava de jos)
+  for (let lag = lo + 1; lag < best; lag++) if (corr[lag] > corr[lag - 1] && corr[lag] >= corr[lag + 1] && corr[lag] > 0.9 * bestV) { best = lag; break; }
+  const a = corr[best - 1], c = corr[best + 1], p = (a - c) / (2 * (a - 2 * corr[best] + c) || 1);
+  return sr / (best + p);
+}
+
+const KEYS = { a: 60, w: 61, s: 62, e: 63, d: 64, f: 65, t: 66, g: 67, y: 68, h: 69, u: 70, j: 71, k: 72 };
+addEventListener("keydown", e => { if (e.repeat || e.metaKey || e.ctrlKey) return; const m = KEYS[e.key.toLowerCase()]; if (m && document.activeElement?.tagName !== "INPUT") noteOn(m, "tastatura"); });
+addEventListener("keyup", e => { const m = KEYS[e.key.toLowerCase()]; if (m) noteOff(m); });
+
+// ---------- lista de lecții ----------
+function renderList() {
+  const nav = $("lessons"); nav.innerHTML = "";
+  LECTII.forEach((l, k) => {
+    if (l.grup) { const h = document.createElement("h2"); h.textContent = l.grup; nav.appendChild(h); }
+    const b = document.createElement("button");
+    b.className = "les" + (k === L ? " sel" : "");
+    const s = Math.max(best[String(k)] || 0, best[k + "r"] || 0);
+    b.innerHTML = `<span class="n">${k + 1}</span><span class="t">${l.t}</span><span class="s">${s ? "★".repeat(s) : ""}</span>`;
+    b.onclick = () => pick(k);
+    nav.appendChild(b);
+  });
+}
+$("startBtn").onclick = () => {
+  if (R && running) { stopRitm(); setMsg("■", "Oprit. Apasă „Începe” ca s-o iei de la capăt.", ""); $("startBtn").textContent = "Începe"; update(); return; }
+  audio(); start();
+};
+$("bpm").oninput = () => { $("bpmTxt").textContent = $("bpm").value; };
+$("ritm").onchange = () => { stopRitm(); R = null; $("startBtn").textContent = "Începe"; update(); };
+$("listenBtn").onclick = () => { audio(); listen(); };
+$("hint").onchange = update;
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawStaff);
+
+buildMini(); buildKb();
+let startL = 0; try { startL = Math.min(LECTII.length - 1, +(localStorage.getItem("pian-lectie") || 0)); } catch (e) {}
+pick(startL);
+</script>
+<script>
+// aplicație instalabilă (Android: Chrome → „Instalează aplicația”); merge și fără internet după prima deschidere
+if ("serviceWorker" in navigator && location.protocol === "https:") navigator.serviceWorker.register("sw.js").catch(() => {});
+</script>
+</body>
+</html>
