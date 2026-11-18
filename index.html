@@ -11,10 +11,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,800&family=Inter:wght@400;500;700&display=swap">
 <style>
-/* Layout: o bandă sus (conexiunea), lecțiile în stânga, portativul + claviatura în dreapta; pe telefon totul pe o coloană. */
+/* Layout: o bandă sus (conexiunea + contul), lecțiile în stânga, portativul + claviatura în dreapta; pe telefon totul pe o coloană. */
 :root{
   --bg:#f3efe7; --panel:#fffdf8; --ink:#1d1a17; --muted:#6c645a; --line:#d9d1c4;
-  --accent:#1f6f5c; --accent-ink:#ffffff; --target:#f2b33d; --good:#2e9e5b; --bad:#d23c3c;
+  --accent:#1f6f5c; --accent-ink:#ffffff; --target:#f2b33d; --good:#2e9e5b; --bad:#d23c3c; --late:#e0892b;
   --white-key:#fbfaf6; --black-key:#1b1917; --staff:#2a2622;
   --display:"Fraunces",Georgia,serif; --body:"Inter",system-ui,-apple-system,sans-serif;
   color-scheme:light;
@@ -26,6 +26,7 @@
 *{box-sizing:border-box}
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body)}
+[hidden]{display:none!important}
 .wrap{max-width:1180px;margin:0 auto;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
 header{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;justify-content:space-between}
 h1{font-family:var(--display);font-weight:800;font-size:clamp(26px,4vw,38px);margin:0;letter-spacing:-.01em;text-wrap:balance}
@@ -36,18 +37,30 @@ h1 small{display:block;font:500 13px/1.4 var(--body);color:var(--muted);letter-s
 .dot.on{background:var(--good)}
 button{font:inherit;cursor:pointer;border-radius:10px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 14px}
 button:hover{border-color:var(--accent)}
-button:focus-visible,select:focus-visible{outline:3px solid var(--target);outline-offset:2px}
+button:disabled{opacity:.55;cursor:default}
+button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--target);outline-offset:2px}
 button.main{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:700}
+button.cont{display:inline-flex;align-items:center;gap:8px;border-radius:999px;font-weight:600}
+button.cont .av{width:24px;height:24px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font-size:13px;font-weight:700;overflow:hidden}
+button.cont .av img{width:100%;height:100%;object-fit:cover}
+button.cont small{font-weight:500;color:var(--muted);font-size:12px}
+select,input[type=number]{font:inherit;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--ink);padding:7px 10px}
 .grid{display:grid;grid-template-columns:290px minmax(0,1fr);gap:18px;align-items:start}
 @media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
 .lessons{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px;display:grid;gap:4px}
 .lessons h2{font:700 11px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:10px 8px 6px}
+.lessons .prog{margin:4px 8px 8px;font-size:13px;color:var(--muted)}
+.lessons .prog .bar{height:6px;border-radius:9px;background:var(--line);margin-top:6px;overflow:hidden}
+.lessons .prog .bar i{display:block;height:100%;background:var(--good);border-radius:9px}
 .les{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;text-align:left;border:0;background:none;padding:9px 8px;border-radius:9px}
 .les:hover{background:color-mix(in srgb,var(--accent) 9%,transparent)}
 .les.sel{background:color-mix(in srgb,var(--accent) 16%,transparent)}
 .les .n{font:700 13px var(--body);color:var(--muted);text-align:center}
 .les .t{font-weight:600}
 .les .s{font-size:13px;color:var(--target);letter-spacing:1px;white-space:nowrap}
+.les .nou{font:700 10px var(--body);letter-spacing:.06em;color:var(--accent);border:1px solid var(--accent);border-radius:5px;padding:1px 5px}
+.les.moduri{border:1px solid var(--line);margin-bottom:4px}
+.les.moduri .n{font-size:17px}
 .stage{display:grid;gap:14px;min-width:0}
 .card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0}
 .title{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:space-between}
@@ -55,11 +68,23 @@ button.main{background:var(--accent);color:var(--accent-ink);border-color:var(--
 .desc{color:var(--muted);margin:6px 0 0;max-width:68ch}
 .controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
 label.chk{display:inline-flex;gap:6px;align-items:center;font-size:14px;color:var(--muted);margin-left:4px}
+button.q{border-radius:999px;padding:4px 11px;font-size:13px;font-weight:600}
 .msg{min-height:58px;display:flex;align-items:center;gap:14px;font-size:19px;font-weight:600}
 .msg .big{font-family:var(--display);font-size:40px;line-height:1;min-width:2ch;white-space:nowrap;flex-shrink:0}
 .msg.ok{color:var(--good)} .msg.bad{color:var(--bad)}
 .stats{display:flex;gap:18px;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
 .stats b{color:var(--ink)}
+/* bara cu bătăile și cât ții nota (doar în modul cu ritm) */
+.ritmbar{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;margin:4px 0 10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+.beats{display:flex;gap:8px;align-items:center}
+.beats .bt{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font:700 14px var(--body);color:var(--muted);transition:background .06s}
+.beats .bt.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.beats .bt.ci.on{background:var(--muted);border-color:var(--muted)}
+.beats .cap{font-size:13px;color:var(--muted);margin-left:4px}
+.hold{flex:1;min-width:220px;display:grid;gap:5px;font-size:14px;color:var(--muted)}
+.hb{height:12px;border-radius:9px;background:var(--line);overflow:hidden}
+.hb i{display:block;height:100%;width:0;background:var(--target);border-radius:9px}
+.hb.gata i{background:var(--good)}
 .staffbox{overflow-x:auto}
 svg.staff{display:block;width:100%;min-width:520px;height:180px}
 .kbbox{overflow-x:auto;padding-bottom:6px}
@@ -99,12 +124,66 @@ svg.staff{display:block;width:100%;min-width:520px;height:180px}
 .wk.down,.bk.down{background:#8fd3b0}
 .wk.wrong,.bk.wrong{background:var(--bad);color:#fff}
 .finger{font:800 18px var(--display);color:#1d1a17;margin-bottom:6px}
-.result{display:grid;gap:8px}
-.result .stars{font-size:38px;color:var(--target);letter-spacing:4px}
 .help{font-size:14px;color:var(--muted);display:grid;gap:6px}
 .help b{color:var(--ink)}
 kbd{font:600 12px var(--body);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;background:var(--panel)}
-@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* explicația pentru ritm */
+.rh{display:grid;gap:12px;font-size:15px}
+.rh h3{font-family:var(--display);font-weight:600;font-size:21px;margin:0}
+.rh ol{margin:0;padding-left:22px;display:grid;gap:8px}
+.rh li b{color:var(--ink)}
+.durs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
+.dur{border:1px solid var(--line);border-radius:10px;padding:8px 10px;display:grid;grid-template-columns:34px 1fr;gap:8px;align-items:center;font-size:13px;color:var(--muted)}
+.dur b{display:block;color:var(--ink);font-size:14px}
+.dur svg{width:34px;height:46px;color:var(--ink)}
+.cul{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:14px;color:var(--muted)}
+.cul span::before{content:"";display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--c);margin-right:6px;vertical-align:-1px}
+/* modurile pianului */
+.acum{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:8px;margin-top:10px}
+.acum div{border:1px solid var(--line);border-radius:10px;padding:8px 11px;font-size:13px;color:var(--muted)}
+.acum div b{display:block;color:var(--ink);font-size:15px}
+.acum div.sch{border-color:var(--target);background:color-mix(in srgb,var(--target) 12%,transparent)}
+.acum div.sch b::after{content:" · schimbat";font:500 11px var(--body);color:var(--late)}
+.modgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px}
+.mg h3{font-family:var(--display);font-weight:600;font-size:19px;margin:0 0 4px}
+.mg p{margin:0 0 10px;color:var(--muted);font-size:13px}
+.mg .its{display:grid;gap:4px}
+.mi{display:flex;justify-content:space-between;gap:8px;align-items:center;text-align:left;border:0;background:none;padding:7px 9px;border-radius:9px}
+.mi:hover{background:color-mix(in srgb,var(--accent) 9%,transparent)}
+.mi.sel{background:color-mix(in srgb,var(--accent) 16%,transparent)}
+.mi .k{font:700 12px var(--body);color:var(--muted);white-space:nowrap}
+.mi.acum-e .t::after{content:" ✓";color:var(--good);font-weight:700}
+.panou{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding:10px 12px;margin:12px 0;border-radius:10px;background:#26221e;color:#cfc7bb;font-size:12px}
+.panou .pb{border:1px solid #57504a;border-radius:7px;padding:6px 10px;color:#cfc7bb}
+.panou .pb.on{background:var(--target);border-color:var(--target);color:#1d1a17;font-weight:800;box-shadow:0 0 14px var(--target)}
+.panou .pn{margin-left:auto;font-size:12px}
+.pas{margin:0;padding-left:22px;display:grid;gap:6px;font-size:16px}
+.pas b{color:var(--ink)}
+.kb.full{min-width:1250px;height:160px}
+.kb.full .wk{height:160px;font-size:9px;padding-bottom:5px}
+.kb.full .bk{height:100px}
+.kb.full .wk .lab{font-size:10px;color:var(--accent)}
+.badge{position:absolute;bottom:44px;left:50%;transform:translateX(-50%);min-width:22px;height:22px;padding:0 5px;border-radius:11px;background:var(--accent);color:var(--accent-ink);font:800 12px/22px var(--body);text-align:center;z-index:4;white-space:nowrap}
+.bk .badge{top:auto;bottom:6px}
+.note{font-size:13px;color:var(--muted)}
+.tempoIn{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.toast{position:fixed;left:50%;bottom:22px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-weight:600;z-index:50;max-width:min(560px,calc(100vw - 32px));box-shadow:0 8px 30px rgba(0,0,0,.25)}
+/* fereastra contului */
+dialog{border:1px solid var(--line);border-radius:16px;background:var(--panel);color:var(--ink);padding:0;width:min(560px,calc(100vw - 32px));max-height:calc(100vh - 40px)}
+dialog::backdrop{background:rgba(0,0,0,.45)}
+.dlg{padding:20px;display:grid;gap:14px}
+.dlg h2{font-family:var(--display);font-weight:600;font-size:24px;margin:0}
+.dlg .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.nums div{border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-size:12px;color:var(--muted)}
+.nums b{display:block;font:800 24px var(--display);color:var(--ink)}
+.ist{display:grid;gap:2px;font-size:13px;color:var(--muted);max-height:180px;overflow:auto}
+.ist div{display:flex;justify-content:space-between;gap:10px;border-bottom:1px solid var(--line);padding:4px 0}
+.ist .st{color:var(--target)}
+.sync{font-size:13px;color:var(--muted)}
+.box{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px;font-size:14px;color:var(--muted)}
+.box b{color:var(--ink)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
 <body>
@@ -114,13 +193,14 @@ kbd{font:600 12px var(--body);border:1px solid var(--line);border-bottom-width:2
     <div class="conn">
       <span class="pill"><span class="dot" id="midiDot"></span><span id="midiTxt">Pianul nu e conectat</span></span>
       <button id="micBtn">Folosește microfonul</button>
+      <button class="cont" id="contBtn"><span class="av" id="contAv">?</span><span><span id="contNume">Contul meu</span> <small id="contSync"></small></span></button>
     </div>
   </header>
 
   <div class="grid">
     <nav class="lessons" id="lessons" aria-label="Lecții"></nav>
 
-    <section class="stage">
+    <section class="stage" id="stageLectii">
       <div class="card">
         <div class="title"><h2 id="lTitle"></h2><div class="stats"><span>Nota <b id="pos">0/0</b></span><span>Greșeli <b id="errs">0</b></span><span>La timp <b id="timp">–</b></span></div></div>
         <p class="desc" id="lDesc"></p>
@@ -132,12 +212,34 @@ kbd{font:600 12px var(--body);border:1px solid var(--line);border-bottom-width:2
         </div>
         <div class="controls">
           <label class="chk"><input type="checkbox" id="ritm"> <b>Cu ritm</b>: metronomul bate, cânți la timp și ții nota cât trebuie</label>
+          <button class="q" id="ritmQ" aria-expanded="false">Ce trebuie să fac?</button>
           <label class="chk">Viteza <input type="range" id="bpm" min="40" max="120" step="5" value="60"> <b id="bpmTxt">60</b> bătăi pe minut</label>
         </div>
       </div>
 
+      <div class="card rh" id="ritmHelp" hidden>
+        <h3>Ce faci în modul „Cu ritm”</h3>
+        <ol>
+          <li><b>Apeși „Începe” și asculți.</b> Metronomul bate de 4 ori „tic, tic, tic, tic” ca să-ți arate viteza. Cercurile de sus se aprind gri și vezi numărătoarea 3, 2, 1. <b>Încă nu cânți.</b></li>
+          <li><b>Pe primul „tic” de după numărătoare cânți prima notă.</b> Cercurile devin verzi. De aici metronomul nu se mai oprește și nici nu te mai așteaptă: fiecare notă vine la rândul ei, ca într-o melodie adevărată.</li>
+          <li><b>Te uiți la forma notei ca să știi cât o ții apăsată.</b> „Tic”-ul e o bătaie. Bara galbenă îți arată cât mai ai de ținut; când se face verde, poți ridica degetul.</li>
+        </ol>
+        <div class="durs" id="durs"></div>
+        <ol start="4">
+          <li><b>Dacă greșești, nu te opri.</b> Treci la nota următoare pe „tic”-ul ei. Așa înveți să cânți fără pauze.</li>
+          <li><b>Culorile pe portativ, după fiecare notă:</b>
+            <div class="cul" style="margin-top:6px"><span style="--c:var(--good)">verde: la timp</span><span style="--c:var(--late)">portocaliu: nota bună, dar puțin devreme sau târziu</span><span style="--c:var(--bad)">roșu: notă greșită sau sărită</span></div></li>
+          <li><b>3 stele</b> iei când toate notele sunt bune, cel puțin 8 din 10 sunt la timp, nu cânți nimic în plus și ții notele cât trebuie. Atunci crești viteza cu 5.</li>
+          <li><b>Sfatul profesorilor:</b> spune cu voce tare „1, 2, 3, 4” odată cu metronomul. Dacă e greu, bate întâi ritmul din palme, fără pian, apoi cântă. Lecțiile din grupul <b>Ritm</b> sunt făcute exact pentru asta: o singură clapă, doar ritmul.</li>
+        </ol>
+      </div>
+
       <div class="card">
         <div class="msg" id="msg"><span class="big" id="msgBig">🎹</span><span id="msgTxt">Alege o lecție din stânga și apasă „Începe”.</span></div>
+        <div class="ritmbar" id="ritmbar" hidden>
+          <div class="beats" id="beats"></div>
+          <div class="hold"><span id="holdTxt">Când apeși o notă, aici vezi cât s-o ții.</span><div class="hb" id="hb"><i id="holdFill"></i></div></div>
+        </div>
         <div class="staffbox"><svg class="staff" id="staff" viewBox="0 0 900 180" role="img" aria-label="Portativul cu notele lecției"></svg></div>
       </div>
 
@@ -151,10 +253,11 @@ kbd{font:600 12px var(--body);border:1px solid var(--line);border-bottom-width:2
       <div class="card help">
         <b>Cum exersezi ca să înveți repede</b>
         <span><b>Întâi fără ritm, apoi cu ritm.</b> Înveți notele și degetele în modul obișnuit, care te așteaptă. Când iei 3 stele, bifezi „Cu ritm”.</span>
-        <span><b>Începe încet.</b> Pune viteza atât de jos încât să nu greșești deloc, chiar 40. Crește cu 5 doar după ce iei 3 stele. Așa lucrează profesorii de pian.</span>
+        <span><b>Începe încet.</b> Pune viteza atât de jos încât să nu greșești deloc, chiar 40. Crește cu 5 doar după ce iei 3 stele. Aplicația ține minte viteza la fiecare lecție.</span>
         <span><b>Nu te opri la greșeală.</b> În modul cu ritm, dacă ratezi o notă, mergi mai departe, ca la un concert.</span>
         <span><b>Puțin și des, odihnit.</b> 15–20 de minute pe zi, nu când ești obosit. Fă o pauză scurtă între lecții.</span>
         <span><b>Degetul arătat, de la început.</b> Aplicația vede doar clapa, nu și degetul, așa că aici ești tu atent.</span>
+        <span><b>Acordurile</b> (mai multe note deodată) le apeși toate în același timp și le ții apăsate. Cu microfonul merg greu, e mai bine cu cablul.</span>
       </div>
 
       <div class="card help" id="helpCard">
@@ -165,66 +268,323 @@ kbd{font:600 12px var(--body);border:1px solid var(--line);border-bottom-width:2
         <span>Ca să încerci fără pian: tastele <kbd>A</kbd><kbd>S</kbd><kbd>D</kbd><kbd>F</kbd><kbd>G</kbd><kbd>H</kbd><kbd>J</kbd><kbd>K</kbd> sunt Do Re Mi Fa Sol La Si Do, iar <kbd>W</kbd><kbd>E</kbd><kbd>T</kbd><kbd>Y</kbd><kbd>U</kbd> sunt clapele negre. Poți și să dai click pe clape.</span>
       </div>
     </section>
+
+    <section class="stage" id="stageModuri" hidden>
+      <div class="card">
+        <div class="title"><h2>Modurile pianului</h2></div>
+        <p class="desc">Yamaha P-45 are un singur buton pentru toate setările: <b>GRAND PIANO/FUNCTION</b>, în stânga, lângă volum. Îl ții apăsat cu mâna stângă și, cu dreapta, apeși o clapă. Fiecare clapă face altceva. Alegi mai jos ce vrei să schimbi și îți arăt exact clapa, apoi apeși „Am făcut asta pe pian” ca să țin minte unde ești.</p>
+      </div>
+
+      <div class="card">
+        <div class="title"><h2 style="font-size:21px">Pianul tău acum</h2></div>
+        <div class="acum" id="acum"></div>
+        <div class="controls">
+          <button id="resetPornire">Am oprit și pornit pianul</button>
+          <span class="note">La pornire pianul revine singur la Grand Piano 1, fără Dual, Duo sau transpunere. Atingerea, acordajul și volumul metronomului rămân cum le-ai pus.</span>
+        </div>
+      </div>
+
+      <div class="card" id="modCard">
+        <div class="title"><h2 id="modTitle" style="font-size:21px">Alege o setare din listă</h2></div>
+        <p class="desc" id="modDesc">Mai jos sunt toate modurile pianului, pe grupe. Când alegi una, aici apare exact ce apeși.</p>
+        <div id="modExtra"></div>
+        <div class="panou" aria-hidden="true">
+          <span class="pb" id="pbOn">⏻ pornire</span>
+          <span class="pb">VOLUM</span>
+          <span class="pb" id="pbFn">GRAND PIANO / FUNCTION</span>
+          <span class="pn">partea stângă a pianului, deasupra clapelor</span>
+        </div>
+        <ol class="pas" id="modPas"></ol>
+        <div class="kbbox" style="margin-top:12px"><div class="kb full" id="kbFull"></div></div>
+        <div class="controls">
+          <button class="main" id="modOk" disabled>✓ Am făcut asta pe pian</button>
+          <button id="modTrimite" hidden>Schimbă direct din aplicație</button>
+          <span class="note" id="modNote"></span>
+        </div>
+      </div>
+
+      <div class="modgrid" id="modList"></div>
+    </section>
   </div>
 </div>
 
+<dialog id="contDlg"><div class="dlg" id="contBody"></div></dialog>
+<input type="file" id="fileIn" accept="application/json,.json" hidden>
+
 <script>
-// ---------- pedala (MIDI CC 64, sustain) ----------
+// ===================== CONTUL (memoria în cloud) =====================
+// Când e completat, progresul se salvează în contul Google și apare pe orice calculator sau tabletă.
+// (cheia de mai jos e publică: doar identifică proiectul; datele sunt păzite de regulile din firestore.rules)
+const FIREBASE = {
+  apiKey: "AIzaSyDLq2ZpwWy3bsOD2rhqNPg445Sf3a5gF20",
+  authDomain: "primele-note-la-pian.firebaseapp.com",
+  projectId: "primele-note-la-pian",
+  storageBucket: "primele-note-la-pian.firebasestorage.app",
+  messagingSenderId: "720876479608",
+  appId: "1:720876479608:web:27d35a8e65460669e3798d",
+};
+
+const $ = id => document.getElementById(id);
+
+// ---------- profilul: tot ce ține minte aplicația ----------
+const LS = "pian-profil";
+const nouP = () => ({ v: 1, best: {}, lectie: "0", viteza: {}, hist: [], pian: {}, pcMap: {}, upd: 0 });
+let P = nouP();
+function loadP() {
+  let p = null; try { p = JSON.parse(localStorage.getItem(LS) || "null"); } catch (e) {}
+  if (!p) {   // mutăm progresul din versiunea veche a aplicației
+    p = nouP();
+    try { p.best = JSON.parse(localStorage.getItem("pian-best") || "{}"); const l = localStorage.getItem("pian-lectie"); if (l != null) p.lectie = String(l); } catch (e) {}
+  }
+  P = Object.assign(nouP(), p);
+}
+function saveLocal() { try { localStorage.setItem(LS, JSON.stringify(P)); } catch (e) {} }
+function saveP() { P.upd = Date.now(); saveLocal(); cloudSave(); renderContBtn(); }
+function mergeP(a, b) {
+  const o = nouP();
+  o.best = { ...(a.best || {}) };
+  for (const [k, v] of Object.entries(b.best || {})) o.best[k] = Math.max(o.best[k] || 0, v);
+  const seen = new Set();
+  o.hist = [...(a.hist || []), ...(b.hist || [])].filter(h => { const k = h.t + "|" + h.id; if (seen.has(k)) return false; seen.add(k); return true; })
+    .sort((x, y) => x.t - y.t).slice(-3000);
+  const nou = (b.upd || 0) > (a.upd || 0) ? b : a, vechi = nou === a ? b : a;
+  o.lectie = nou.lectie ?? vechi.lectie ?? "0";
+  o.viteza = { ...(vechi.viteza || {}), ...(nou.viteza || {}) };
+  o.pian = { ...(vechi.pian || {}), ...(nou.pian || {}) };
+  o.pcMap = { ...(vechi.pcMap || {}), ...(nou.pcMap || {}) };
+  o.upd = Math.max(a.upd || 0, b.upd || 0);
+  return o;
+}
+
+// ---------- Firebase: conectare cu Google + salvare ----------
+let fb = null, user = null, cloudT = null, syncTxt = "";
+function setSync(t) { syncTxt = t; renderContBtn(); if ($("contDlg").open) renderCont(); }
+async function cloudInit() {
+  if (!FIREBASE) return;
+  try {
+    const V = "https://www.gstatic.com/firebasejs/10.12.2/";
+    const [A, Au, F] = await Promise.all([import(V + "firebase-app.js"), import(V + "firebase-auth.js"), import(V + "firebase-firestore.js")]);
+    const app = A.initializeApp(FIREBASE), auth = Au.getAuth(app), db = F.getFirestore(app);
+    fb = { Au, F, auth, db };
+    Au.getRedirectResult(auth).catch(() => {});
+    Au.onAuthStateChanged(auth, async u => { user = u; renderContBtn(); if ($("contDlg").open) renderCont(); if (u) await cloudLoad(); });
+  } catch (e) { console.warn(e); setSync("contul nu a pornit (internet?)"); }
+  renderContBtn();
+}
+async function cloudLoad() {
+  try {
+    setSync("se încarcă…");
+    const s = await fb.F.getDoc(fb.F.doc(fb.db, "pian", user.uid));
+    if (s.exists()) { const c = JSON.parse(s.data().profil || "{}"); P = mergeP(P, c); saveLocal(); }
+    await cloudPush();
+    renderList(); renderModuri();
+  } catch (e) { console.warn(e); setSync("nu am putut citi contul"); }
+}
+function cloudSave() { if (!fb || !user) return; clearTimeout(cloudT); cloudT = setTimeout(cloudPush, 1200); }
+async function cloudPush() {
+  if (!fb || !user) return;
+  try { await fb.F.setDoc(fb.F.doc(fb.db, "pian", user.uid), { profil: JSON.stringify(P), upd: P.upd || Date.now(), nume: user.displayName || "" }); setSync("salvat ✓"); }
+  catch (e) { console.warn(e); setSync("nesalvat încă (fără internet?)"); }
+}
+addEventListener("online", cloudSave);
+async function login() {
+  if (!fb) return;
+  const pr = new fb.Au.GoogleAuthProvider();
+  try { await fb.Au.signInWithPopup(fb.auth, pr); }
+  catch (e) {
+    if (["auth/popup-blocked", "auth/operation-not-supported-in-this-environment", "auth/cancelled-popup-request"].includes(e.code)) fb.Au.signInWithRedirect(fb.auth, pr);
+    else if (e.code !== "auth/popup-closed-by-user") setSync("conectarea n-a mers (" + e.code + ")");
+  }
+}
+async function logout() { if (fb) { await cloudPush(); await fb.Au.signOut(fb.auth); setSync(""); } }
+
+// ---------- copia în fișier ----------
+function exportFile() {
+  const blob = new Blob([JSON.stringify(P, null, 1)], { type: "application/json" });
+  const a = document.createElement("a"); a.href = URL.createObjectURL(blob);
+  a.download = "pian-progres-" + new Date().toISOString().slice(0, 10) + ".json"; a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+}
+$("fileIn").onchange = async () => {
+  const f = $("fileIn").files[0]; if (!f) return;
+  try {
+    const c = JSON.parse(await f.text());
+    const p = c.best && !c.v ? { ...nouP(), best: c.best } : c;      // acceptă și copia veche, doar cu stelele
+    P = mergeP(P, p); P.upd = Date.now(); saveP(); renderList(); renderModuri(); renderCont();
+    toast("Am încărcat progresul din fișier ✓");
+  } catch (e) { toast("Fișierul nu e o copie a aplicației de pian."); }
+  $("fileIn").value = "";
+};
+
+// ---------- fereastra contului ----------
+const ziua = t => new Date(t).toISOString().slice(0, 10);
+function statistici() {
+  const lec = LECTII.filter(l => stele(l) > 0).length;
+  const st = LECTII.reduce((s, l) => s + stele(l), 0);
+  const zile = new Set(P.hist.map(h => ziua(h.t))).size;
+  let serie = 0; const azi = new Date(); const zs = new Set(P.hist.map(h => ziua(h.t)));
+  for (let d = 0; d < 400; d++) { const z = ziua(azi.getTime() - d * 864e5); if (zs.has(z)) serie++; else if (d > 0) break; }
+  return { lec, st, zile, serie };
+}
+function renderContBtn() {
+  const av = $("contAv");
+  if (user) {
+    av.innerHTML = user.photoURL ? `<img src="${user.photoURL}" alt="" referrerpolicy="no-referrer">` : (user.displayName || "?")[0];
+    $("contNume").textContent = (user.displayName || "Contul meu").split(" ")[0];
+    $("contSync").textContent = syncTxt;
+  } else {
+    av.textContent = "👤";
+    $("contNume").textContent = "Contul meu";
+    $("contSync").textContent = FIREBASE ? "neconectat" : "";
+  }
+}
+function renderCont() {
+  const s = statistici(), b = $("contBody");
+  const ist = P.hist.slice(-12).reverse().map(h => {
+    const l = LECTII.find(x => x.id === h.id);
+    return `<div><span>${new Date(h.t).toLocaleDateString("ro-RO", { day: "numeric", month: "short" })} · ${l ? l.t : "lecție"}${h.r ? " · cu ritm, " + h.bpm : ""}</span><span class="st">${"★".repeat(h.s)}${"☆".repeat(3 - h.s)}</span></div>`;
+  }).join("") || `<div><span>Încă nu ai terminat nicio lecție pe acest cont.</span></div>`;
+  let contHtml;
+  if (!FIREBASE) contHtml = `<div class="box"><b>Contul în cloud nu e pornit încă.</b><span>Până atunci progresul se ține minte pe acest calculator. Ca să nu-l mai pierzi, fă din când în când o copie în fișier.</span></div>`;
+  else if (!user) contHtml = `<div class="box"><b>Conectează-te cu contul Google</b><span>Așa progresul tău (stelele, vitezele, setările pianului) se salvează în cont și îl găsești pe orice laptop, tabletă sau telefon. Tot ce ai făcut pe acest calculator intră în cont.</span><div class="row"><button class="main" id="loginBtn">Conectează-te cu Google</button></div></div>`;
+  else contHtml = `<div class="box"><b>Conectat ca ${user.displayName || user.email}</b><span class="sync">Progresul se salvează singur în cont: ${syncTxt || "…"}</span><div class="row"><button id="logoutBtn">Ieși din cont</button></div></div>`;
+  b.innerHTML = `
+    <div class="title"><h2>Contul meu</h2><button id="closeDlg" aria-label="Închide">✕</button></div>
+    ${contHtml}
+    <div class="nums"><div><b>${s.lec}/${LECTII.length}</b>lecții terminate</div><div><b>${s.st}</b>stele</div><div><b>${s.serie}</b>${s.serie === 1 ? "zi la rând" : "zile la rând"}</div></div>
+    <div class="box"><b>Ultimele exersări</b><div class="ist">${ist}</div></div>
+    <div class="box"><b>Copie de siguranță în fișier</b>
+      <span>Merge și fără cont. Dacă vechiul laptop mai există, deschide aplicația acolo, apasă „Salvează într-un fișier”, apoi aici „Încarcă din fișier”, și primești înapoi stelele de acolo.</span>
+      <div class="row"><button id="expBtn">Salvează într-un fișier</button><button id="impBtn">Încarcă din fișier</button></div></div>`;
+  $("closeDlg").onclick = () => $("contDlg").close();
+  $("expBtn").onclick = exportFile;
+  $("impBtn").onclick = () => $("fileIn").click();
+  if ($("loginBtn")) $("loginBtn").onclick = login;
+  if ($("logoutBtn")) $("logoutBtn").onclick = logout;
+}
+$("contBtn").onclick = () => { renderCont(); $("contDlg").showModal(); };
+let toastT = null;
+function toast(t) {
+  let e = document.querySelector(".toast"); if (!e) { e = document.createElement("div"); e.className = "toast"; e.setAttribute("role", "status"); document.body.appendChild(e); }
+  e.textContent = t; e.hidden = false; clearTimeout(toastT); toastT = setTimeout(() => e.hidden = true, 3500);
+}
+
+// ===================== NOTE ȘI LECȚII =====================
 function setPedal(on) {
   $("pedal").classList.toggle("on", on);
   $("pedalTxt").textContent = on ? "APĂSATĂ" : "ridicată";
   $("pedalNote").textContent = on ? "Notele continuă să sune după ce ridici degetul." : "Notele se opresc când ridici degetul.";
 }
-// ---------- note ----------
-const RO = ["Do","Do#","Re","Re#","Mi","Fa","Fa#","Sol","Sol#","La","La#","Si"];
-const DE = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","H"]; // literele de pe abțibildurile pianului (în germană: H, nu B)
-const nume = m => `${RO[m % 12]} (${DE[m % 12]})`;
-const ro = m => RO[m % 12];
-let LO = 21, HI = 108;               // claviatura mare: la început tot pianul (La0 … Do8), apoi doar clapele lecției
+const RO_D = ["Do","Do#","Re","Re#","Mi","Fa","Fa#","Sol","Sol#","La","La#","Si"];
+const RO_B = ["Do","Re♭","Re","Mi♭","Mi","Fa","Sol♭","Sol","La♭","La","Si♭","Si"];
+const DE_D = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","H"];   // literele de pe abțibilduri (în germană: H, nu B)
+const DE_B = ["C","Des","D","Es","E","F","Ges","G","As","A","B","H"];   // în germană Si bemol se numește chiar „B”
+let BEM = false;                                                       // lecțiile cu bemoli (Fa major) scriu clapele negre cu ♭
+const ro = m => (BEM ? RO_B : RO_D)[m % 12];
+const de = m => (BEM ? DE_B : DE_D)[m % 12];
+const nume = m => `${ro(m)} (${de(m)})`;
+let LO = 21, HI = 108;
 const N = (m, f = null, d = 1) => ({ m, f, d });
 const seq = (ms, fs, ds) => ms.map((m, i) => N(m, fs ? fs[i] : null, ds ? ds[i] : 1));
+const MS = n => Array.isArray(n.m) ? n.m : [n.m];
+const FS = n => n.f == null ? [] : Array.isArray(n.f) ? n.f : [n.f];
+const numeN = n => MS(n).length > 1 ? MS(n).map(ro).join(" + ") : nume(n.m);
+const potriv = (x, m, src) => x === m || (src === "mic" && x % 12 === m % 12);   // microfonul mai greșește octava
 
 const C4 = 60, D4 = 62, E4 = 64, F4 = 65, G4 = 67, A4 = 69, B4 = 71, C5 = 72;
-const FD = { 60: 1, 62: 2, 64: 3, 65: 4, 67: 5 }; // poziția Do: degetul pe fiecare notă
+const FD = { 60: 1, 62: 2, 64: 3, 65: 4, 67: 5 };          // mâna dreaptă în poziția Do
 const fd = ms => ms.map(m => FD[m] ?? null);
+const FS_ = { 48: 5, 50: 4, 52: 3, 53: 2, 55: 1 };          // mâna stângă în poziția Do (de sub Do central)
+const fs = ms => ms.map(m => FS_[m] ?? null);
+
+const ODA = [64,64,65,67, 67,65,64,62, 60,60,62,64, 64,62,62, 64,64,65,67, 67,65,64,62, 60,60,62,64, 62,60,60];
+const ODA_D = [1,1,1,1, 1,1,1,1, 1,1,1,1, 1.5,.5,2, 1,1,1,1, 1,1,1,1, 1,1,1,1, 1.5,.5,2];
+const MAS_ODA = { 0: 48, 4: 55, 8: 48, 12: 55, 15: 48, 19: 55, 23: 48, 27: 48 };   // basul mâinii stângi la începutul fiecărei măsuri
 
 const LECTII = [
-  { grup: "Primii pași", t: "Găsește Do central", d: "Do este clapa albă din stânga grupului de două clape negre. Do central e cel din mijlocul pianului, cam sub numele Yamaha. Apasă-l de trei ori, cu degetul mare al mâinii drepte (degetul 1).",
+  { id: "0", grup: "Primii pași", t: "Găsește Do central", d: "Do este clapa albă din stânga grupului de două clape negre. Do central e cel din mijlocul pianului, cam sub numele Yamaha. Apasă-l de trei ori, cu degetul mare al mâinii drepte (degetul 1).",
     note: seq([C4, C4, C4], [1, 1, 1]) },
-  { t: "Do, Re, Mi", d: "Pui mâna dreaptă cu degetul mare pe Do. Degetul 2 cade pe Re, degetul 3 pe Mi. Urci și cobori.",
+  { id: "1", t: "Do, Re, Mi", d: "Pui mâna dreaptă cu degetul mare pe Do. Degetul 2 cade pe Re, degetul 3 pe Mi. Urci și cobori.",
     note: seq([C4, D4, E4, D4, C4, E4, D4, C4], fd([C4, D4, E4, D4, C4, E4, D4, C4])) },
-  { t: "Cinci degete", d: "Fiecare deget are clapa lui: 1 pe Do, 2 pe Re, 3 pe Mi, 4 pe Fa, 5 pe Sol. Nu muta mâna.",
+  { id: "2", t: "Cinci degete", d: "Fiecare deget are clapa lui: 1 pe Do, 2 pe Re, 3 pe Mi, 4 pe Fa, 5 pe Sol. Nu muta mâna.",
     note: seq([C4, D4, E4, F4, G4, F4, E4, D4, C4], fd([C4, D4, E4, F4, G4, F4, E4, D4, C4])) },
-  { t: "Sărituri", d: "Tot cu mâna în poziția Do, dar acum sari peste o clapă: Do-Mi, Re-Fa, Mi-Sol.",
+  { id: "3", t: "Sărituri", d: "Tot cu mâna în poziția Do, dar acum sari peste o clapă: Do-Mi, Re-Fa, Mi-Sol.",
     note: seq([C4, E4, D4, F4, E4, G4, E4, C4], fd([C4, E4, D4, F4, E4, G4, E4, C4])) },
-  { t: "Mâna stângă", d: "Mâna stângă, cu degetul mic (5) pe Do-ul de sub Do central. Urci până la Sol cu degetul mare (1), apoi cobori.",
+  { id: "4", t: "Mâna stângă", d: "Mâna stângă, cu degetul mic (5) pe Do-ul de sub Do central. Urci până la Sol cu degetul mare (1), apoi cobori.",
     note: seq([48, 50, 52, 53, 55, 53, 52, 50, 48], [5, 4, 3, 2, 1, 2, 3, 4, 5]), cheie: "fa" },
 
-  { grup: "Scale", t: "Scala Do major", d: "Opt clape albe, de la Do la Do. După Mi, degetul mare trece pe sub mână și cade pe Fa. La coborâre, degetul 3 trece peste, pe Mi.",
-    note: seq([60, 62, 64, 65, 67, 69, 71, 72, 71, 69, 67, 65, 64, 62, 60], [1, 2, 3, 1, 2, 3, 4, 5, 4, 3, 2, 1, 3, 2, 1]) },
+  { id: "r1", grup: "Ritm", nou: true, ritm: true, t: "Ritm: bătăi egale", d: "O singură clapă, Do central, ca să te gândești doar la ritm. Fiecare notă ține o bătaie: apeși exact pe „tic”, ridici degetul și apeși iar pe următorul „tic”. Numără cu voce tare: 1, 2, 3, 4.",
+    note: seq([60, 60, 60, 60, 60, 60, 60, 60], [1, 1, 1, 1, 1, 1, 1, 1]) },
+  { id: "r2", nou: true, ritm: true, t: "Ritm: note lungi", d: "Nota goală (albă) cu bețișor ține 2 bătăi: o apeși pe „1” și nu ridici degetul până la „3”. Nota goală fără bețișor ține 4 bătăi, toată măsura. Do, Re, Mi cu degetele 1, 2, 3.",
+    note: seq([60, 60, 60, 62, 62, 62, 64, 64, 64, 60], [1, 1, 1, 2, 2, 2, 3, 3, 3, 1], [1, 1, 2, 1, 1, 2, 1, 1, 2, 4]) },
+  { id: "r3", nou: true, ritm: true, t: "Ritm: note scurte", d: "Nota cu steguleț (optimea) ține jumătate de bătaie: cânți două note pe un singur „tic”, ca „ta-ta”. Numără „1 și 2 și 3 și 4 și”: pe cifre e „tic”-ul, pe „și” vine a doua optime.",
+    note: seq([60, 60, 62, 64, 64, 62, 60, 62, 64, 62, 60], fd([60, 60, 62, 64, 64, 62, 60, 62, 64, 62, 60]), [.5, .5, 1, .5, .5, 1, .5, .5, .5, .5, 2]) },
+  { id: "r4", nou: true, ritm: true, t: "Ritm: nota cu punct", d: "Punctul de lângă notă adaugă o jumătate: nota plină cu punct ține o bătaie și jumătate, iar nota de după ea doar o jumătate. E exact sfârșitul Odei bucuriei: „Mi… Re Re”.",
+    note: seq([64, 62, 62, 60, 62, 64, 64, 62, 62, 62, 64, 60], fd([64, 62, 62, 60, 62, 64, 64, 62, 62, 62, 64, 60]), [1.5, .5, 2, 1.5, .5, 2, 1.5, .5, 2, 1.5, .5, 2]) },
 
-  { grup: "Melodii", t: "Sclipește, steluță", d: "Cântecelul „Ah, vous dirai-je, maman”, pe care l-a folosit și Mozart. Ai nevoie de șase clape: Do, Re, Mi, Fa, Sol, La.",
+  { id: "5", grup: "Scale", t: "Scala Do major", d: "Opt clape albe, de la Do la Do. După Mi, degetul mare trece pe sub mână și cade pe Fa. La coborâre, degetul 3 trece peste, pe Mi.",
+    note: seq([60, 62, 64, 65, 67, 69, 71, 72, 71, 69, 67, 65, 64, 62, 60], [1, 2, 3, 1, 2, 3, 4, 5, 4, 3, 2, 1, 3, 2, 1]) },
+  { id: "s5", nou: true, t: "Do major, mâna stângă", d: "Mâna stângă, de la Do-ul de sub Do central. Degetul mic (5) pe Do, urci până la Sol cu degetul mare, apoi degetul 3 trece peste, pe La. La coborâre, degetul mare trece pe sub mână, pe Sol.",
+    note: seq([48, 50, 52, 53, 55, 57, 59, 60, 59, 57, 55, 53, 52, 50, 48], [5, 4, 3, 2, 1, 3, 2, 1, 2, 3, 1, 2, 3, 4, 5]), cheie: "fa" },
+  { id: "s2", nou: true, t: "Scala Sol major", d: "Începi pe Sol, deasupra lui Do central. E ca Do major, dar are o clapă neagră: Fa# (Fa diez), chiar înainte de Sol-ul de sus. Degetul mare trece pe sub mână după Si.",
+    note: seq([67, 69, 71, 72, 74, 76, 78, 79, 78, 76, 74, 72, 71, 69, 67], [1, 2, 3, 1, 2, 3, 4, 5, 4, 3, 2, 1, 3, 2, 1]) },
+  { id: "s3", nou: true, bemol: true, t: "Scala Fa major", d: "Începi pe Fa. Are o clapă neagră: Si♭ (Si bemol, pe abțibilduri e „B”), cântată cu degetul 4. Atenție: aici degetul mare trece pe sub mână abia după Si♭, pe Do.",
+    note: seq([65, 67, 69, 70, 72, 74, 76, 77, 76, 74, 72, 70, 69, 67, 65], [1, 2, 3, 4, 1, 2, 3, 4, 3, 2, 1, 4, 3, 2, 1]) },
+  { id: "s4", nou: true, t: "Scala La minor", d: "Tot clape albe, ca la Do major, dar începi pe La. Sună mai trist: e scala „minoră”. Degetul mare trece pe sub mână după Do.",
+    note: seq([69, 71, 72, 74, 76, 77, 79, 81, 79, 77, 76, 74, 72, 71, 69], [1, 2, 3, 1, 2, 3, 4, 5, 4, 3, 2, 1, 3, 2, 1]) },
+
+  { id: "6", grup: "Melodii", t: "Sclipește, steluță", d: "Cântecelul „Ah, vous dirai-je, maman”, pe care l-a folosit și Mozart. Ai nevoie de șase clape: Do, Re, Mi, Fa, Sol, La.",
     note: seq([60,60,67,67,69,69,67, 65,65,64,64,62,62,60, 67,67,65,65,64,64,62, 67,67,65,65,64,64,62, 60,60,67,67,69,69,67, 65,65,64,64,62,62,60],
               [1,1,5,5,5,5,5, 4,4,3,3,2,2,1, 5,5,4,4,3,3,2, 5,5,4,4,3,3,2, 1,1,5,5,5,5,5, 4,4,3,3,2,2,1],
               [1,1,1,1,1,1,2, 1,1,1,1,1,1,2, 1,1,1,1,1,1,2, 1,1,1,1,1,1,2, 1,1,1,1,1,1,2, 1,1,1,1,1,1,2]) },
-  { t: "Frate Ioane", d: "Canonul vechi „Frère Jacques”. Ultimul rând coboară la Sol-ul de sub Do central: întinde degetul mare.",
+  { id: "7", t: "Frate Ioane", d: "Canonul vechi „Frère Jacques”. Ultimul rând coboară la Sol-ul de sub Do central: întinde degetul mare.",
     note: seq([60,62,64,60, 60,62,64,60, 64,65,67, 64,65,67, 67,69,67,65,64,60, 67,69,67,65,64,60, 60,55,60, 60,55,60],
               [1,2,3,1, 1,2,3,1, 3,4,5, 3,4,5, 4,5,4,3,2,1, 4,5,4,3,2,1, 2,1,2, 2,1,2],
               [1,1,1,1, 1,1,1,1, 1,1,2, 1,1,2, .5,.5,.5,.5,1,1, .5,.5,.5,.5,1,1, 1,1,2, 1,1,2]) },
-  { t: "Oda bucuriei", d: "Tema lui Beethoven din Simfonia a 9-a. Toată în poziția Do, cu cele cinci degete.",
-    note: seq([64,64,65,67, 67,65,64,62, 60,60,62,64, 64,62,62, 64,64,65,67, 67,65,64,62, 60,60,62,64, 62,60,60],
-              fd([64,64,65,67, 67,65,64,62, 60,60,62,64, 64,62,62, 64,64,65,67, 67,65,64,62, 60,60,62,64, 62,60,60]),
-              [1,1,1,1, 1,1,1,1, 1,1,1,1, 1.5,.5,2, 1,1,1,1, 1,1,1,1, 1,1,1,1, 1.5,.5,2]) },
+  { id: "8", t: "Oda bucuriei", d: "Tema lui Beethoven din Simfonia a 9-a. Toată în poziția Do, cu cele cinci degete.",
+    note: seq(ODA, fd(ODA), ODA_D) },
+  { id: "m1", nou: true, t: "Mieluțul", d: "„Mary had a little lamb”, un cântec englezesc pentru copii. Doar Do, Re, Mi și Sol, în poziția Do. Ultima notă e întreagă: ține-o 4 bătăi.",
+    note: seq([64,62,60,62, 64,64,64, 62,62,62, 64,67,67, 64,62,60,62, 64,64,64,64, 62,62,64,62, 60],
+              fd([64,62,60,62, 64,64,64, 62,62,62, 64,67,67, 64,62,60,62, 64,64,64,64, 62,62,64,62, 60]),
+              [1,1,1,1, 1,1,2, 1,1,2, 1,1,2, 1,1,1,1, 1,1,1,1, 1,1,1,1, 4]) },
+  { id: "m2", nou: true, t: "Clopoței (Jingle Bells)", d: "Refrenul de Crăciun, tot în poziția Do. Ai multe note Mi la rând: apasă-le clar, ridicând puțin degetul 3 între ele.",
+    note: seq([64,64,64, 64,64,64, 64,67,60,62, 64, 65,65,65,65, 65,64,64,64,64, 64,62,62,64, 62,67],
+              fd([64,64,64, 64,64,64, 64,67,60,62, 64, 65,65,65,65, 65,64,64,64,64, 64,62,62,64, 62,67]),
+              [1,1,2, 1,1,2, 1,1,1.5,.5, 4, 1,1,1.5,.5, 1,1,1,.5,.5, 1,1,1,1, 2,2]) },
+  { id: "m3", nou: true, t: "Când sfinții mărșăluiesc", d: "„When the Saints Go Marching In”, cântecul de jazz din New Orleans. Do, Mi, Fa, Sol și o notă lungă. Ține bine notele lungi de 4 bătăi.",
+    note: seq([60,64,65,67, 60,64,65,67, 60,64,65,67,64,60,64,62],
+              fd([60,64,65,67, 60,64,65,67, 60,64,65,67,64,60,64,62]),
+              [1,1,1,4, 1,1,1,4, 1,1,1,2,2,2,2,4]) },
+  { id: "m4", nou: true, t: "Oda bucuriei, mâna stângă", d: "Aceeași melodie a lui Beethoven, dar cu mâna stângă, o octavă mai jos. Degetul mic (5) pe Do, degetul mare (1) pe Sol.",
+    note: seq(ODA.map(m => m - 12), fs(ODA.map(m => m - 12)), ODA_D), cheie: "fa" },
 
-  { grup: "Citit note", t: "Citește notele", d: "Vezi nota pe portativ și o cânți. Clapa nu mai e arătată, trebuie s-o recunoști singur. 20 de note, între Do central și Sol de sus.",
-    quiz: true, hint: false },
+  { id: "m5", grup: "Mâinile împreună", nou: true, cheie: "mare", t: "Amândouă mâinile, aceleași note", d: "Mâna stângă pe Do-ul de jos (degetul 5), mâna dreaptă pe Do central (degetul 1). Apeși deodată aceeași notă cu ambele mâini. Degetele merg în oglindă: când stânga folosește 5, dreapta folosește 1.",
+    note: [[48,60],[50,62],[52,64],[53,65],[55,67],[53,65],[52,64],[50,62],[48,60]].map((m, i) => N(m, [FS_[m[0]], FD[m[1]]], i === 8 ? 2 : 1)) },
+  { id: "m6", nou: true, cheie: "mare", t: "Oda bucuriei cu bas", d: "Mâna dreaptă cântă melodia. Mâna stângă apasă o singură notă la începutul fiecărei măsuri: Do cu degetul 5 sau Sol cu degetul 1. Le apeși deodată, apoi dreapta merge mai departe singură.",
+    note: ODA.map((m, i) => MAS_ODA[i] ? N([MAS_ODA[i], m], [FS_[MAS_ODA[i]], FD[m]], ODA_D[i]) : N(m, FD[m], ODA_D[i])) },
+
+  { id: "a1", grup: "Acorduri", nou: true, t: "Primul acord: Do major", d: "Un acord înseamnă trei note apăsate deodată. Do major: Do, Mi, Sol, cu degetele 1, 3 și 5 ale mâinii drepte. Apeși toate trei în același timp, ții 2 bătăi, ridici mâna și repeți.",
+    note: [1, 2, 3, 4].map(() => N([60, 64, 67], [1, 3, 5], 2)) },
+  { id: "a2", nou: true, t: "Do, Fa, Sol", d: "Cele trei acorduri din care sunt făcute mii de cântece. Mâna stă aproape pe loc: la Fa, Do rămâne și degetele 3 și 5 urcă pe Fa și La; la Sol, degetul mare coboară pe Si, 2 pe Re, 5 pe Sol.",
+    note: [[60, 64, 67, [1, 3, 5]], [60, 65, 69, [1, 3, 5]], [60, 64, 67, [1, 3, 5]], [59, 62, 67, [1, 2, 5]], [60, 64, 67, [1, 3, 5]], [60, 65, 69, [1, 3, 5]], [59, 62, 67, [1, 2, 5]], [60, 64, 67, [1, 3, 5]]]
+      .map((a, i) => N(a.slice(0, 3), a[3], i === 7 ? 4 : 2)) },
+  { id: "a3", nou: true, cheie: "fa", t: "Acorduri cu mâna stângă", d: "Aceleași acorduri, cu mâna stângă, sub Do central. Do: Do, Mi, Sol cu 5, 3, 1. Fa: Do, Fa, La cu 5, 2, 1. Sol: Si, Re, Sol cu 5, 3, 1.",
+    note: [[48, 52, 55, [5, 3, 1]], [48, 53, 57, [5, 2, 1]], [48, 52, 55, [5, 3, 1]], [47, 50, 55, [5, 3, 1]], [48, 52, 55, [5, 3, 1]]]
+      .map((a, i) => N(a.slice(0, 3), a[3], i === 4 ? 4 : 2)) },
+
+  { id: "9", grup: "Citit note", t: "Citește notele", d: "Vezi nota pe portativ și o cânți. Clapa nu mai e arătată, trebuie s-o recunoști singur. 20 de note, între Do central și Sol de sus.",
+    quiz: [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79], hint: false },
+  { id: "q2", nou: true, t: "Citește notele, cheia Fa", d: "Notele mâinii stângi, scrise în cheia Fa (semnul care seamănă cu un C întors). 20 de note, de la Sol de jos până la Do central.",
+    quiz: [43, 45, 47, 48, 50, 52, 53, 55, 57, 59, 60], hint: false, cheie: "fa" },
+  { id: "q3", nou: true, t: "Citește notele de sus", d: "Note mai sus pe portativ, cu linii ajutătoare deasupra. De la Do de sus (a doua octavă) până la Do-ul următor.",
+    quiz: [72, 74, 76, 77, 79, 81, 83, 84], hint: false },
+  { id: "q4", nou: true, t: "Citește notele cu diez", d: "Diezul ♯ din fața notei înseamnă: clapa neagră din dreapta ei. Note albe și negre amestecate, între Do central și Do de sus.",
+    quiz: [60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72], hint: false },
 ];
+const stele = l => Math.max(P.best[l.id] || 0, P.best[l.id + "r"] || 0);
 
 // ---------- stare ----------
-let L = 0, notes = [], i = 0, errs = 0, wrongBy = {}, running = false, playing = false, done = false;
-let best = {};
-try { best = JSON.parse(localStorage.getItem("pian-best") || "{}"); } catch (e) {}
-const $ = id => document.getElementById(id);
+let L = 0, notes = [], i = 0, errs = 0, wrongBy = {}, running = false, playing = false, done = false, got = new Set();
 
 // ---------- claviatura ----------
 const isBlack = m => [1, 3, 6, 8, 10].includes(m % 12);
@@ -239,7 +599,7 @@ function buildMini() {
 }
 const pozMini = m => { const whites = []; for (let x = 21; x <= 108; x++) if (!isBlack(x)) whites.push(x); return whites.indexOf(m) / whites.length * 100; };
 function intervalLectie(ns) {
-  const mn = Math.min(...ns.map(n => n.m)), mx = Math.max(...ns.map(n => n.m));
+  const all = ns.flatMap(MS), mn = Math.min(...all), mx = Math.max(...all);
   let lo = mn - mn % 12, hi = mx % 12 ? mx + 12 - mx % 12 : mx;
   if (hi <= lo) hi = lo + 12;
   while (hi - lo < 24) { if (mn - lo <= hi - mx && lo - 12 >= 21) lo -= 12; else if (hi + 12 <= 108) hi += 12; else lo -= 12; }
@@ -256,23 +616,23 @@ function zoomTo(lo, hi) {
 }
 function buildKb() {
   const kb = $("kb"); kb.innerHTML = ""; keyEl = {};
-  kb.classList.toggle("tot", HI - LO > 48);
+  const tot = HI - LO > 48;
+  kb.classList.toggle("tot", tot);
   const whites = []; for (let m = LO; m <= HI; m++) if (!isBlack(m)) whites.push(m);
   const w = 100 / whites.length;
   whites.forEach((m, k) => {
     const e = document.createElement("div");
     e.className = "wk" + (m === 60 ? " c4" : "");
     e.style.left = (k * w) + "%"; e.style.width = w + "%";
-    const tot = HI - LO > 48;
     const lab = tot ? (m % 12 === 0 ? "Do" : "") : ro(m);
-    e.innerHTML = `<span class="finger"></span><span class="de">${DE[m % 12]}</span><span class="lab">${lab}</span>`;
+    e.innerHTML = `<span class="finger"></span><span class="de">${de(m)}</span><span class="lab">${lab}</span>`;
     kb.appendChild(e); keyEl[m] = e;
   });
   for (let m = LO; m <= HI; m++) if (isBlack(m)) {
     const k = whites.indexOf(m - 1);
     const e = document.createElement("div");
     e.className = "bk"; e.style.left = ((k + 1) * w - w * 0.3) + "%"; e.style.width = (w * 0.6) + "%";
-    e.innerHTML = `<span class="finger" style="color:#fff"></span>` + (HI - LO > 48 ? "" : `<span class="de">${DE[m % 12]}</span>`);
+    e.innerHTML = `<span class="finger" style="color:#fff"></span>` + (tot ? "" : `<span class="de">${de(m)}</span>`);
     kb.appendChild(e); keyEl[m] = e;
   }
   for (const [m, e] of Object.entries(keyEl)) {
@@ -280,72 +640,103 @@ function buildKb() {
     e.addEventListener("pointerup", () => noteOff(+m));
     e.addEventListener("pointerleave", () => noteOff(+m));
   }
-  // Do central la vedere pe ecrane înguste
-  const box = document.querySelector(".kbbox");
+  const box = document.querySelector("#stageLectii .kbbox");
   requestAnimationFrame(() => { const c = keyEl[60] || keyEl[LO]; box.scrollLeft = c ? c.offsetLeft - box.clientWidth / 2 + 40 : 0; });
 }
 function clearMarks(cls) { for (const e of [...Object.values(keyEl), ...Object.values(miniEl)]) e.classList.remove(cls); }
+function markNote(n) {
+  MS(n).forEach((m, j) => {
+    keyEl[m]?.classList.add("target"); miniEl[m]?.classList.add("target");
+    const f = FS(n)[j]; if (f && keyEl[m]) keyEl[m].querySelector(".finger").textContent = f;
+  });
+}
 function showTarget() {
   clearMarks("target");
   for (const e of Object.values(keyEl)) e.querySelector(".finger").textContent = "";
   if (!running || i >= notes.length || !$("hint").checked) return;
-  const n = notes[i], e = keyEl[n.m];
-  if (e) { e.classList.add("target"); if (n.f) e.querySelector(".finger").textContent = n.f; }
-  miniEl[n.m]?.classList.add("target");
+  markNote(notes[i]);
 }
 
-// ---------- portativul ----------
-const STEP = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6];
-const diat = m => Math.floor(m / 12) * 7 + STEP[m % 12];
+// ---------- portativul (cheia Sol, cheia Fa sau amândouă) ----------
+const STEP_D = [0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6], STEP_B = [0, 1, 1, 2, 2, 3, 4, 4, 5, 5, 6, 6];
+const diat = m => Math.floor(m / 12) * 7 + (BEM ? STEP_B : STEP_D)[m % 12];
 function drawStaff() {
-  const svg = $("staff"), G = 14, top = 50, bottom = top + 4 * G;
-  const cheie = LECTII[L].cheie === "fa" ? "fa" : "sol";
-  const ref = cheie === "sol" ? diat(64) : diat(43);   // linia de jos: Mi4 la cheia sol, Sol2 la cheia fa
-  const css = getComputedStyle(document.documentElement);
-  const ink = css.getPropertyValue("--staff").trim(), tg = css.getPropertyValue("--target").trim(),
-        good = css.getPropertyValue("--good").trim(), bad = css.getPropertyValue("--bad").trim(), mut = css.getPropertyValue("--muted").trim();
+  const svg = $("staff"), G = 14, les = LECTII[L], cheie = les.cheie || "sol", mare = cheie === "mare";
+  const H = mare ? 250 : 180;
+  svg.setAttribute("viewBox", `0 0 900 ${H}`); svg.style.height = H + "px";
+  const SOL = { ref: diat(64), top: mare ? 36 : 50, c: "sol" }, FA = { ref: diat(43), top: mare ? 136 : 50, c: "fa" };
+  const port = mare ? [SOL, FA] : cheie === "fa" ? [FA] : [SOL];
+  const unde = m => mare ? (m >= 60 ? SOL : FA) : port[0];
+  const css = getComputedStyle(document.documentElement), v = k => css.getPropertyValue(k).trim();
+  const ink = v("--staff"), tg = v("--target"), good = v("--good"), bad = v("--bad"), mut = v("--muted"), late = v("--late");
+  const FONT = "'Apple Symbols','Noto Music','Segoe UI Symbol',serif";
   let s = "";
-  for (let k = 0; k < 5; k++) s += `<line x1="20" x2="880" y1="${top + k * G}" y2="${top + k * G}" stroke="${ink}" stroke-width="1.4"/>`;
-  s += cheie === "sol"
-    ? `<text x="22" y="${bottom + 22}" font-size="128" fill="${ink}" font-family="'Apple Symbols','Noto Music','Segoe UI Symbol',serif">𝄞</text>`
-    : `<text x="24" y="${top + 44}" font-size="76" fill="${ink}" font-family="'Apple Symbols','Noto Music','Segoe UI Symbol',serif">𝄢</text>`;
+  for (const p of port) {
+    for (let k = 0; k < 5; k++) s += `<line x1="20" x2="880" y1="${p.top + k * G}" y2="${p.top + k * G}" stroke="${ink}" stroke-width="1.4"/>`;
+    s += p.c === "sol" ? `<text x="22" y="${p.top + 4 * G + 22}" font-size="128" fill="${ink}" font-family="${FONT}">𝄞</text>`
+                       : `<text x="24" y="${p.top + 44}" font-size="76" fill="${ink}" font-family="${FONT}">𝄢</text>`;
+  }
+  if (mare) s += `<line x1="20" x2="20" y1="${SOL.top}" y2="${FA.top + 4 * G}" stroke="${ink}" stroke-width="2"/>`;
   if (!notes.length) { svg.innerHTML = s; return; }
   const per = 9, start = Math.max(0, Math.min(i - 3, notes.length - per));
-  const vis = notes.slice(start, start + per);
-  vis.forEach((n, k) => {
-    const idx = start + k, x = 140 + k * 82, st = diat(n.m) - ref, y = bottom - st * G / 2;
+  notes.slice(start, start + per).forEach((n, k) => {
+    const idx = start + k, x = 140 + k * 82;
     let col = ink;
-    if (R) {
-      const st = R.st[idx];
-      col = st === "good" ? good : st === "late" ? "#e0892b" : (st === "miss" || st === "wrong") ? bad : (idx === i && running ? tg : ink);
-    } else {
-      if (idx < i) col = wrongBy["#" + idx] ? bad : good;
-      if (idx === i && running) col = tg;
+    if (R) { const st = R.st[idx]; col = st === "good" ? good : st === "late" ? late : (st === "miss" || st === "wrong") ? bad : (idx === i && running ? tg : ink); }
+    else { if (idx < i) col = wrongBy["#" + idx] ? bad : good; if (idx === i && running) col = tg; }
+    if (idx === i && running) s += `<rect x="${x - 34}" y="8" width="68" height="${H - 16}" rx="10" fill="${tg}" opacity=".16"/>`;
+    const grupe = new Map(); for (const m of MS(n)) { const p = unde(m); if (!grupe.has(p)) grupe.set(p, []); grupe.get(p).push(m); }
+    for (const [p, ms] of grupe) {
+      const bottom = p.top + 4 * G, sts = ms.map(m => diat(m) - p.ref), ys = sts.map(st => bottom - st * G / 2);
+      const mn = Math.min(...sts), mx = Math.max(...sts);
+      for (let l = -2; l >= mn; l -= 2) s += `<line x1="${x - 17}" x2="${x + 17}" y1="${bottom - l * G / 2}" y2="${bottom - l * G / 2}" stroke="${ink}" stroke-width="1.4"/>`;
+      for (let l = 10; l <= mx; l += 2) s += `<line x1="${x - 17}" x2="${x + 17}" y1="${bottom - l * G / 2}" y2="${bottom - l * G / 2}" stroke="${ink}" stroke-width="1.4"/>`;
+      const hollow = n.d >= 2;
+      ms.forEach((m, j) => {
+        const y = ys[j];
+        if (isBlack(m)) s += `<text x="${x - 30}" y="${y + 7}" font-size="22" fill="${col}" font-family="${FONT}">${BEM ? "♭" : "♯"}</text>`;
+        s += `<ellipse cx="${x}" cy="${y}" rx="10" ry="7.5" transform="rotate(-20 ${x} ${y})" fill="${hollow ? "none" : col}" stroke="${col}" stroke-width="${hollow ? 2.6 : 1}"/>`;
+        if (n.d === 1.5 || n.d === 3) s += `<circle cx="${x + 17}" cy="${y}" r="2.6" fill="${col}"/>`;
+      });
+      if (n.d < 4) {
+        const up = (mn + mx) / 2 < 4, yLo = Math.max(...ys), yHi = Math.min(...ys);
+        if (up) s += `<line x1="${x + 9}" x2="${x + 9}" y1="${yLo - 2}" y2="${yHi - 46}" stroke="${col}" stroke-width="1.8"/>`;
+        else s += `<line x1="${x - 9}" x2="${x - 9}" y1="${yHi + 2}" y2="${yLo + 46}" stroke="${col}" stroke-width="1.8"/>`;
+        if (n.d === 0.5) s += up ? `<path d="M${x + 9} ${yHi - 46} q14 10 10 26" fill="none" stroke="${col}" stroke-width="2"/>`
+                                 : `<path d="M${x - 9} ${yLo + 46} q14 -10 10 -26" fill="none" stroke="${col}" stroke-width="2"/>`;
+      }
     }
-    for (let l = -2; l >= st; l -= 2) s += `<line x1="${x - 17}" x2="${x + 17}" y1="${bottom - l * G / 2}" y2="${bottom - l * G / 2}" stroke="${ink}" stroke-width="1.4"/>`;
-    for (let l = 10; l <= st; l += 2) s += `<line x1="${x - 17}" x2="${x + 17}" y1="${bottom - l * G / 2}" y2="${bottom - l * G / 2}" stroke="${ink}" stroke-width="1.4"/>`;
-    if (idx === i && running) s += `<rect x="${x - 30}" y="8" width="60" height="164" rx="10" fill="${tg}" opacity=".16"/>`;
-    const hollow = n.d >= 2;
-    s += `<ellipse cx="${x}" cy="${y}" rx="10" ry="7.5" transform="rotate(-20 ${x} ${y})" fill="${hollow ? "none" : col}" stroke="${col}" stroke-width="${hollow ? 2.6 : 1}"/>`;
-    const up = st < 4;
-    s += up ? `<line x1="${x + 9}" x2="${x + 9}" y1="${y - 2}" y2="${y - 46}" stroke="${col}" stroke-width="1.8"/>`
-            : `<line x1="${x - 9}" x2="${x - 9}" y1="${y + 2}" y2="${y + 46}" stroke="${col}" stroke-width="1.8"/>`;
-    if (n.d === 0.5) s += up ? `<path d="M${x + 9} ${y - 46} q14 10 10 26" fill="none" stroke="${col}" stroke-width="2"/>`
-                             : `<path d="M${x - 9} ${y + 46} q14 -10 10 -26" fill="none" stroke="${col}" stroke-width="2"/>`;
-    if (n.d === 1.5) s += `<circle cx="${x + 17}" cy="${y}" r="2.6" fill="${col}"/>`;
-    const showName = LECTII[L].hint !== false || idx < i;
-    if (showName) s += `<text x="${x}" y="170" text-anchor="middle" font-size="14" font-weight="700" fill="${idx === i && running ? tg : mut}" font-family="Inter,sans-serif">${ro(n.m)} ${DE[n.m % 12]}</text>`;
+    const showName = les.hint !== false || idx < i;
+    if (showName) s += `<text x="${x}" y="${H - 10}" text-anchor="middle" font-size="${MS(n).length > 2 ? 12 : 14}" font-weight="700" fill="${idx === i && running ? tg : mut}" font-family="Inter,sans-serif">${MS(n).length > 1 ? MS(n).map(ro).join(" ") : ro(n.m) + " " + de(n.m)}</text>`;
   });
   svg.innerHTML = s;
 }
 
+// micile desene cu duratele, pentru explicația ritmului
+function glif(d) {
+  const hollow = d >= 2, y = 34;
+  let s = `<svg viewBox="0 0 34 46" aria-hidden="true"><ellipse cx="13" cy="${y}" rx="8" ry="6" transform="rotate(-20 13 ${y})" fill="${hollow ? "none" : "currentColor"}" stroke="currentColor" stroke-width="${hollow ? 2.2 : 1}"/>`;
+  if (d < 4) s += `<line x1="20.5" x2="20.5" y1="${y - 2}" y2="4" stroke="currentColor" stroke-width="1.8"/>`;
+  if (d === 0.5) s += `<path d="M20.5 4 q11 8 8 20" fill="none" stroke="currentColor" stroke-width="2"/>`;
+  if (d === 1.5 || d === 3) s += `<circle cx="28" cy="${y}" r="2.4" fill="currentColor"/>`;
+  return s + "</svg>";
+}
+$("durs").innerHTML = [
+  [1, "1 bătaie", "nota plină. Apeși pe „tic” și ridici înainte de următorul."],
+  [2, "2 bătăi", "nota goală. Apeși pe „tic” și ții până la al doilea „tic”."],
+  [4, "4 bătăi", "nota goală, fără bețișor. Ții toată măsura: 1, 2, 3, 4."],
+  [0.5, "½ bătaie", "nota cu steguleț. Două pe un „tic”: „ta-ta”."],
+  [1.5, "1 și ½", "punctul adaugă jumătate. După ea vine de obicei o ½."],
+  [3, "3 bătăi", "nota goală cu punct: 2 + 1."],
+].map(([d, t, x]) => `<div class="dur">${glif(d)}<span><b>${t}</b>${x}</span></div>`).join("");
+
 // ---------- sunet (pentru „Ascultă” și pentru tastatura de pe ecran) ----------
 let ac = null;
 function audio() { if (!ac) ac = new (window.AudioContext || window.webkitAudioContext)(); if (ac.state === "suspended") ac.resume(); return ac; }
-function tone(m, dur = 0.6, when = 0) {
+function tone(m, dur = 0.6, when = 0, vol = 0.28) {
   const a = audio(), t = a.currentTime + when, f = 440 * Math.pow(2, (m - 69) / 12);
   const g = a.createGain(); g.connect(a.destination);
-  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(0.28, t + 0.01); g.gain.exponentialRampToValueAtTime(0.001, t + dur + 0.4);
+  g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(vol, t + 0.01); g.gain.exponentialRampToValueAtTime(0.001, t + dur + 0.4);
   [[1, 1], [2, 0.35], [3, 0.12]].forEach(([h, v]) => {
     const o = a.createOscillator(), og = a.createGain(); o.type = "triangle"; o.frequency.value = f * h; og.gain.value = v;
     o.connect(og); og.connect(g); o.start(t); o.stop(t + dur + 0.5);
@@ -353,33 +744,39 @@ function tone(m, dur = 0.6, when = 0) {
 }
 
 // ---------- lecția ----------
-function quizNotes() {
-  const pool = [60, 62, 64, 65, 67, 69, 71, 72, 74, 76, 77, 79];
+function quizNotes(pool) {
   const out = []; let last = -1;
   while (out.length < 20) { const m = pool[Math.floor(Math.random() * pool.length)]; if (m !== last) { out.push(N(m)); last = m; } }
   return out;
 }
 function pick(k) {
   stopRitm(); R = null;
-  L = k; running = false; playing = false; done = false; i = 0; errs = 0; wrongBy = {};
+  const fost = LECTII[L];
+  L = k; running = false; playing = false; done = false; i = 0; errs = 0; wrongBy = {}; got = new Set();
   const les = LECTII[L];
-  notes = les.quiz ? quizNotes() : les.note;
+  const bemAcum = !!les.bemol, schimbat = bemAcum !== BEM; BEM = bemAcum;
+  notes = les.quiz ? quizNotes(les.quiz) : les.note;
   $("hint").checked = les.hint !== false;
+  if (les.ritm) $("ritm").checked = true; else if (fost && fost.ritm && fost !== les) $("ritm").checked = false;
+  const bpm = P.viteza[les.id] || 60; $("bpm").value = bpm; $("bpmTxt").textContent = bpm;
   $("lTitle").textContent = les.t; $("lDesc").textContent = les.d;
   $("startBtn").textContent = "Începe";
-  setMsg("🎹", "Apasă „Începe”, apoi cântă notele una câte una. Te aștept la fiecare.", "");
-  zoomTo(21, 108);
-  renderList(); update();
-  try { localStorage.setItem("pian-lectie", String(L)); } catch (e) {}
+  setMsg("🎹", $("ritm").checked ? "Apasă „Începe”, ascultă cele 4 bătăi, apoi cântă pe „tic”." : "Apasă „Începe”, apoi cântă notele una câte una. Te aștept la fiecare.", "");
+  arataModuri(false);
+  zoomTo(21, 108); if (schimbat) buildKb();
+  ritmUI(); renderList(); update();
+  if (P.lectie !== les.id) { P.lectie = les.id; saveP(); }
 }
 function start() {
   stopRitm();
-  if (LECTII[L].quiz) notes = quizNotes();
+  if (LECTII[L].quiz) notes = quizNotes(LECTII[L].quiz);
   zoomTo(...intervalLectie(notes));
+  got = new Set();
   if ($("ritm").checked) return startRitm();
-  i = 0; errs = 0; wrongBy = {}; running = true; done = false; playing = false;
+  R = null; i = 0; errs = 0; wrongBy = {}; running = true; done = false; playing = false;
   $("startBtn").textContent = "Ia-o de la capăt";
-  setMsg(nume(notes[0].m), "Prima notă: " + nume(notes[0].m) + (notes[0].f ? ", cu degetul " + notes[0].f : "") + ".", "");
+  const n = notes[0];
+  setMsg(MS(n).length > 1 ? "♫" : nume(n.m), "Prima: " + numeN(n) + (FS(n).length ? (FS(n).length > 1 ? ", cu degetele " : ", cu degetul ") + FS(n).join("-") : "") + ".", "");
   update();
 }
 function update() {
@@ -389,73 +786,96 @@ function update() {
   showTarget(); drawStaff();
 }
 function setMsg(big, txt, cls) { $("msgBig").textContent = big; $("msgTxt").textContent = txt; $("msg").className = "msg " + cls; }
+const degete = n => FS(n).length && $("hint").checked ? (FS(n).length > 1 ? `, degetele ${FS(n).join("-")}.` : `, degetul ${FS(n)[0]}.`) : ".";
 
 function judge(m, sursa) {
   if (R && running) return judgeRitm(m, sursa);
   if (!running || playing || i >= notes.length) return;
-  const want = notes[i].m;
-  const ok = m === want || (sursa === "mic" && m % 12 === want % 12);   // microfonul mai greșește octava
-  if (ok) {
-    i++;
+  const n = notes[i], ms = MS(n);
+  const x = ms.find(y => potriv(y, m, sursa));
+  if (x !== undefined) {
+    if (ms.length > 1) {   // acord: toate notele deodată (cu cablul); pe ecran sau cu microfonul, pe rând
+      got.add(x);
+      const are = y => sursa === "midi" ? held.has(y) : got.has(y);
+      if (!ms.every(are)) { setMsg("…", `Bine. Acum și ${ms.filter(y => !are(y)).map(nume).join(", ")}, toate ținute deodată.`, ""); update(); return; }
+    }
+    got = new Set(); i++;
     if (i >= notes.length) return finish();
-    const n = notes[i];
-    setMsg("✓", `Bravo! Urmează ${nume(n.m)}` + (n.f && $("hint").checked ? `, degetul ${n.f}.` : "."), "ok");
+    const nn = notes[i];
+    setMsg("✓", `Bravo! Urmează ${numeN(nn)}` + degete(nn), "ok");
   } else {
     errs++; wrongBy["#" + i] = true;
-    wrongBy[want] = (wrongBy[want] || 0) + 1;
-    const lower = m < want;
-    setMsg("✗", `Ai cântat ${nume(m)}, trebuia ${nume(want)}. ` + (m % 12 === want % 12 ? "E nota bună, dar altă octavă." : `Mergi mai ${lower ? "la dreapta" : "la stânga"}.`), "bad");
+    wrongBy[ms[0]] = (wrongBy[ms[0]] || 0) + 1;
+    let sfat = "";
+    if (ms.length === 1) { const want = ms[0]; sfat = m % 12 === want % 12 ? "E nota bună, dar altă octavă." : `Mergi mai ${m < want ? "la dreapta" : "la stânga"}.`; }
+    setMsg("✗", `Ai cântat ${nume(m)}, trebuia ${numeN(n)}. ${sfat}`, "bad");
     const e = keyEl[m]; if (e) { e.classList.add("wrong"); setTimeout(() => e.classList.remove("wrong"), 450); }
   }
   update();
+}
+function noteaza(cheie, stars, extra = {}) {
+  if (!P.best[cheie] || stars > P.best[cheie]) P.best[cheie] = stars;
+  P.hist.push({ t: Date.now(), id: LECTII[L].id, s: stars, ...extra });
+  if (P.hist.length > 3000) P.hist = P.hist.slice(-3000);
+  saveP();
 }
 function finish() {
   running = false; done = true;
   const pct = Math.round(100 * notes.length / (notes.length + errs));
   const stars = errs === 0 ? 3 : pct >= 80 ? 2 : 1;
-  const key = String(L); if (!best[key] || stars > best[key]) { best[key] = stars; try { localStorage.setItem("pian-best", JSON.stringify(best)); } catch (e) {} }
-  const rele = Object.entries(wrongBy).filter(([k]) => !k.startsWith("#")).sort((a, b) => b[1] - a[1]).slice(0, 3)
-    .map(([m, c]) => `${nume(+m)} (${c})`);
+  noteaza(LECTII[L].id, stars);
+  const rele = Object.entries(wrongBy).filter(([k]) => !k.startsWith("#")).sort((a, b) => b[1] - a[1]).slice(0, 3).map(([m, c]) => `${nume(+m)} (${c})`);
   setMsg("★".repeat(stars) + "☆".repeat(3 - stars),
-    errs === 0 ? "Perfect, nicio greșeală! Treci la lecția următoare." :
+    errs === 0 ? "Perfect, nicio greșeală! Acum bifează „Cu ritm” sau treci la lecția următoare." :
     `Gata! ${errs} ${errs === 1 ? "greșeală" : "greșeli"}, ${pct}% corect. Te-ai încurcat la: ${rele.join(", ")}. Mai încearcă o dată.`, errs ? "" : "ok");
   renderList(); update();
 }
 async function listen() {
   if (playing) return;
   running = false; playing = true; i = 0; update();
-  setMsg("♪", "Ascultă cum sună. Urmărește clapa galbenă.", "");
+  const cuRitm = $("ritm").checked;
+  setMsg("♪", cuRitm ? "Ascultă cum sună, cu metronomul. Numără și tu bătăile." : "Ascultă cum sună. Urmărește clapa galbenă.", "");
   stopRitm(); R = null;
   zoomTo(...intervalLectie(notes));
-  const beat = beatSec();
+  const beat = beatSec(), mas = LECTII[L].masura || 4;
+  if (cuRitm) { const a = audio(), t = a.currentTime + 0.05, tot = notes.reduce((s, n) => s + n.d, 0); for (let k = 0; k < Math.ceil(tot); k++) click(t + k * beat, k % mas === 0, false); }
   for (let k = 0; k < notes.length && playing; k++) {
     const n = notes[k];
-    if ($("sound").checked) tone(n.m, n.d * beat);
-    clearMarks("target"); keyEl[n.m]?.classList.add("target"); miniEl[n.m]?.classList.add("target");
+    if ($("sound").checked) MS(n).forEach(m => tone(m, n.d * beat, 0, MS(n).length > 1 ? 0.16 : 0.28));
+    clearMarks("target"); markNote(n);
     i = k; drawStaff();
     await new Promise(r => setTimeout(r, n.d * beat * 1000));
   }
   clearMarks("target"); playing = false; i = 0; update();
+  for (const e of Object.values(keyEl)) e.querySelector(".finger").textContent = "";
   setMsg("🎹", "Acum e rândul tău. Apasă „Începe”.", "");
 }
 
 // ---------- modul cu ritm ----------
 let R = null, sig = "";
 const beatSec = () => 60 / +$("bpm").value;
-const CAT = d => d >= 2 ? "două bătăi" : d === 1.5 ? "o bătaie și jumătate" : d === 0.5 ? "o jumătate de bătaie" : "o bătaie";
+const CAT = d => d >= 4 ? "patru bătăi" : d >= 3 ? "trei bătăi" : d >= 2 ? "două bătăi" : d === 1.5 ? "o bătaie și jumătate" : d === 0.5 ? "o jumătate de bătaie" : "o bătaie";
 function click(t, accent, loud) {
   const a = audio(), o = a.createOscillator(), g = a.createGain();
   o.frequency.value = accent ? 2500 : 2000; o.connect(g); g.connect(a.destination);
   g.gain.setValueAtTime(0, t); g.gain.linearRampToValueAtTime(loud ? 0.3 : 0.15, t + 0.002); g.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
-  o.start(t); o.stop(t + 0.07); R.nodes.push(o);
+  o.start(t); o.stop(t + 0.07); if (R) R.nodes.push(o);
+}
+function ritmUI() {
+  const on = $("ritm").checked;
+  $("ritmbar").hidden = !on;
+  const mas = LECTII[L].masura || 4;
+  $("beats").innerHTML = Array.from({ length: mas }, (_, k) => `<span class="bt" data-b="${k}">${k + 1}</span>`).join("") + `<span class="cap" id="beatCap">bătăile</span>`;
+  $("holdTxt").textContent = "Când apeși o notă, aici vezi cât s-o ții."; $("holdFill").style.width = "0"; $("hb").classList.remove("gata");
 }
 function startRitm() {
-  const a = audio(), b = beatSec(), lead = 4, t00 = a.currentTime + 0.3;
+  const a = audio(), b = beatSec(), mas = LECTII[L].masura || 4, lead = mas, t00 = a.currentTime + 0.3;
   let acc = 0; const rel = notes.map(n => { const t = acc; acc += n.d; return t; });
   const t0 = t00 + lead * b;
-  R = { t0, b, times: rel.map(x => t0 + x * b), end: t0 + acc * b, st: notes.map(() => null), hit: notes.map(() => null),
-        hold: notes.map(() => null), extra: 0, nodes: [], fin: false };
-  for (let k = 0; k < lead + Math.ceil(acc); k++) click(t00 + k * b, k % 4 === 0, k < lead);
+  R = { t00, t0, b, mas, times: rel.map(x => t0 + x * b), end: t0 + acc * b, st: notes.map(() => null), hit: notes.map(() => null),
+        part: notes.map(() => null), hold: notes.map(() => null), extra: 0, nodes: [], fin: false, lastB: -9 };
+  ritmUI();
+  for (let k = 0; k < lead + Math.ceil(acc); k++) click(t00 + k * b, k % mas === 0, k < lead);
   running = true; done = false; i = 0; errs = 0; wrongBy = {};
   $("startBtn").textContent = "Oprește";
   update(); requestAnimationFrame(tickRitm);
@@ -464,16 +884,34 @@ function stopRitm() {
   if (!R) return;
   R.nodes.forEach(o => { try { o.stop(); } catch (e) {} });
   R.nodes = []; if (!R.fin) running = false;
+  document.querySelectorAll("#beats .bt").forEach(e => e.classList.remove("on", "ci"));
 }
 function tickRitm() {
   if (!R || !running) return;
   const now = audio().currentTime, tol = Math.min(0.35, R.b * 0.5);
-  if (now < R.t0) setMsg(String(Math.ceil((R.t0 - now) / R.b - 1e-6)), "Ascultă metronomul. Începi pe „1”.", "");
+  // cercurile cu bătăile
+  const bAbs = Math.floor((now - R.t00) / R.b + 0.03);
+  if (bAbs !== R.lastB && bAbs >= 0) {
+    R.lastB = bAbs;
+    const ci = now < R.t0 - 0.03, pos = bAbs % R.mas;
+    document.querySelectorAll("#beats .bt").forEach(e => { e.classList.toggle("on", +e.dataset.b === pos); e.classList.toggle("ci", ci); });
+    $("beatCap").textContent = ci ? "ascultă, încă nu cânți" : "cântă pe bătaie";
+  }
+  if (now < R.t0) setMsg(String(Math.ceil((R.t0 - now) / R.b - 1e-6)), "Ascultă metronomul. Începi pe primul „tic” de după numărătoare.", "");
   for (let k = 0; k < notes.length; k++) {
     if (now <= R.times[k] + tol) break;
-    if (R.st[k] === null) { R.st[k] = "miss"; errs++; wrongBy[notes[k].m] = (wrongBy[notes[k].m] || 0) + 1;
-      setMsg("…", `Ai sărit peste ${nume(notes[k].m)}. Nu te opri, mergi mai departe.`, "bad"); }
+    if (R.st[k] === null) { R.st[k] = "miss"; errs++; const m0 = MS(notes[k])[0]; wrongBy[m0] = (wrongBy[m0] || 0) + 1;
+      setMsg("…", `Ai sărit peste ${numeN(notes[k])}. Nu te opri, mergi mai departe.`, "bad"); }
     else if (R.st[k] === "wrongp") R.st[k] = "wrong";
+  }
+  // bara „cât ții nota”
+  let hk = -1;
+  for (let k = 0; k < notes.length; k++) { const h = R.hit[k]; if (h && R.hold[k] === null && h.src !== "mic" && h.ms.some(x => held.has(x))) hk = k; }
+  if (hk >= 0) {
+    const want = notes[hk].d * R.b, fr = (now - R.hit[hk].t) / want;
+    $("holdFill").style.width = Math.min(100, fr * 100) + "%";
+    $("hb").classList.toggle("gata", fr >= 0.85);
+    $("holdTxt").textContent = fr < 0.85 ? `Ține apăsat ${numeN(notes[hk])}: ${CAT(notes[hk].d)}…` : "Gata, poți ridica degetul pentru nota următoare.";
   }
   const nx = R.st.findIndex(x => x === null || x === "wrongp"); i = nx < 0 ? notes.length : nx;
   const s2 = i + "|" + errs + "|" + R.st.join(",");
@@ -484,44 +922,50 @@ function tickRitm() {
 function flashWrong(m) { const e = keyEl[m]; if (e) { e.classList.add("wrong"); setTimeout(() => e.classList.remove("wrong"), 450); } }
 function judgeRitm(m, sursa) {
   const now = audio().currentTime, tol = Math.min(0.35, R.b * 0.5);
-  if (now < R.t0 - tol) { setMsg("✋", "Așteaptă: încă numără metronomul.", "bad"); return; }
+  if (now < R.t0 - tol) { setMsg("✋", "Așteaptă: încă numără metronomul. Începi după cele 4 bătăi.", "bad"); return; }
   let k = -1, bd = 1e9;
   notes.forEach((n, j) => { if (R.st[j] === null || R.st[j] === "wrongp") { const d = Math.abs(now - R.times[j]); if (d < bd) { bd = d; k = j; } } });
   if (k < 0 || bd > tol) { R.extra++; errs++; flashWrong(m); setMsg("✗", `${nume(m)} nu era acum. Ascultă bătaia și așteaptă nota următoare.`, "bad"); return; }
-  const want = notes[k].m;
-  if (!(m === want || (sursa === "mic" && m % 12 === want % 12))) {
-    if (R.st[k] === null) { errs++; wrongBy[want] = (wrongBy[want] || 0) + 1; }
+  const n = notes[k], ms = MS(n), x = ms.find(y => potriv(y, m, sursa));
+  if (x === undefined) {
+    if (R.st[k] === null) { errs++; wrongBy[ms[0]] = (wrongBy[ms[0]] || 0) + 1; }
     R.st[k] = "wrongp"; flashWrong(m);
-    setMsg("✗", `Ai cântat ${nume(m)}, trebuia ${nume(want)}.`, "bad"); return;
+    setMsg("✗", `Ai cântat ${nume(m)}, trebuia ${numeN(n)}.`, "bad"); return;
   }
-  const off = Math.round((now - R.times[k]) * 1000), bun = Math.abs(off) <= Math.max(90, R.b * 150);
-  R.hit[k] = { m, t: now, src: sursa }; R.st[k] = bun ? "good" : "late";
-  setMsg(bun ? "✓" : off < 0 ? "«" : "»", bun ? "La timp!" : off < 0 ? `Puțin prea devreme (${-off} ms).` : `Puțin prea târziu (${off} ms).`, bun ? "ok" : "");
+  const part = R.part[k] || (R.part[k] = { s: new Set(), t: now });
+  part.s.add(x);
+  if (part.s.size < ms.length) { setMsg("…", "Și restul acordului, toate deodată!", ""); return; }
+  const off = Math.round((part.t - R.times[k]) * 1000), bun = Math.abs(off) <= Math.max(90, R.b * 150);
+  R.hit[k] = { ms, t: part.t, src: sursa }; R.st[k] = bun ? "good" : "late";
+  setMsg(bun ? "✓" : off < 0 ? "«" : "»", (bun ? "La timp!" : off < 0 ? `Puțin prea devreme (${-off} ms).` : `Puțin prea târziu (${off} ms).`) + ` Ține ${CAT(n.d)}.`, bun ? "ok" : "");
 }
 function holdRitm(m) {
   if (!running) return;
   for (let k = notes.length - 1; k >= 0; k--) {
     const h = R.hit[k];
-    if (!h || h.m !== m || R.hold[k] !== null) continue;
+    if (!h || !h.ms.includes(m) || R.hold[k] !== null) continue;
     if (h.src === "mic") return;              // microfonul nu știe când ai ridicat degetul
-    const held = audio().currentTime - h.t, want = notes[k].d * R.b;
-    R.hold[k] = held / want;
-    if (held < want * 0.6) setMsg("↧", `Ai ridicat degetul prea repede de pe ${nume(m)}. Ține-o ${CAT(notes[k].d)}.`, "bad");
+    const tinut = audio().currentTime - h.t, want = notes[k].d * R.b;
+    R.hold[k] = tinut / want;
+    if (tinut < want * 0.6) setMsg("↧", `Ai ridicat degetul prea repede de pe ${numeN(notes[k])}. Ține-o ${CAT(notes[k].d)}.`, "bad");
+    $("holdFill").style.width = "0"; $("hb").classList.remove("gata");
+    $("holdTxt").textContent = tinut < want * 0.6 ? "Prea scurt. Data viitoare ține până se face bara verde." : "Bine ținută ✓";
     return;
   }
 }
 function finishRitm() {
   R.fin = true; running = false; done = true;
-  const N = notes.length, nb = R.st.filter(x => x === "good" || x === "late").length, timp = R.st.filter(x => x === "good").length;
+  document.querySelectorAll("#beats .bt").forEach(e => e.classList.remove("on", "ci"));
+  const Nn = notes.length, nb = R.st.filter(x => x === "good" || x === "late").length, timp = R.st.filter(x => x === "good").length;
   const h = R.hold.filter(x => x !== null), hOk = h.filter(x => x >= 0.6).length;
-  const stars = nb === N && timp >= 0.8 * N && R.extra === 0 && hOk === h.length ? 3 : nb >= 0.8 * N ? 2 : 1;
-  const key = L + "r"; if (!best[key] || stars > best[key]) { best[key] = stars; try { localStorage.setItem("pian-best", JSON.stringify(best)); } catch (e) {} }
+  const stars = nb === Nn && timp >= 0.8 * Nn && R.extra === 0 && hOk === h.length ? 3 : nb >= 0.8 * Nn ? 2 : 1;
   const bpm = +$("bpm").value;
+  noteaza(LECTII[L].id + "r", stars, { r: 1, bpm });
   const sfat = stars === 3 ? (bpm < 120 ? `Excelent! Crește viteza la ${bpm + 5}.` : "Excelent!")
-             : timp < 0.7 * N ? `Pune viteza mai jos, la ${Math.max(40, bpm - 10)}, și încearcă din nou.`
-             : h.length && hOk < h.length ? "Ține fiecare notă până la bătaia următoare." : "Încă o dată, la aceeași viteză.";
+             : timp < 0.7 * Nn ? `Pune viteza mai jos, la ${Math.max(40, bpm - 10)}, și încearcă din nou.`
+             : h.length && hOk < h.length ? "Ține fiecare notă până se face bara verde." : "Încă o dată, la aceeași viteză.";
   setMsg("★".repeat(stars) + "☆".repeat(3 - stars),
-    `Note corecte ${nb}/${N} · la timp ${timp}/${N}` + (h.length ? ` · ținute cât trebuie ${hOk}/${h.length}` : "") + `. ${sfat}`, stars === 3 ? "ok" : "");
+    `Note corecte ${nb}/${Nn} · la timp ${timp}/${Nn}` + (h.length ? ` · ținute cât trebuie ${hOk}/${h.length}` : "") + `. ${sfat}`, stars === 3 ? "ok" : "");
   $("startBtn").textContent = "Începe";
   renderList(); update();
 }
@@ -535,16 +979,22 @@ function noteOn(m, sursa) {
 }
 function noteOff(m) { held.delete(m); keyEl[m]?.classList.remove("down"); miniEl[m]?.classList.remove("down"); if (R) holdRitm(m); }
 
+let midiOut = null, bank = [0, 0];
 function midiStatus(acc) {
   const ins = [...acc.inputs.values()];
+  midiOut = [...acc.outputs.values()][0] || null;
   $("midiDot").classList.toggle("on", ins.length > 0);
   $("midiTxt").textContent = ins.length ? (ins[0].name || "Pian") + " conectat" : "Pianul nu e conectat (cablu USB)";
   ins.forEach(inp => inp.onmidimessage = e => {
     const [st, d1, d2] = e.data, c = st & 0xf0;
     if (c === 0xB0 && d1 === 64) { setPedal(d2 >= 64); return; }
+    if (c === 0xB0 && d1 === 0) { bank[0] = d2; return; }
+    if (c === 0xB0 && d1 === 32) { bank[1] = d2; return; }
+    if (c === 0xC0) { schimbareSunet(d1); return; }
     if (c === 0x90 && d2 > 0) noteOn(d1, "midi");
     else if (c === 0x80 || (c === 0x90 && d2 === 0)) noteOff(d1);
   });
+  if (modSel) showMod(modSel);
 }
 if (navigator.requestMIDIAccess) {
   navigator.requestMIDIAccess().then(acc => { midiStatus(acc); acc.onstatechange = () => midiStatus(acc); })
@@ -587,25 +1037,34 @@ function pitch(b, sr) {
   for (let lag = lo; lag <= hi + 1; lag++) { let s = 0; for (let k = 0; k < n; k++) s += b[k] * b[k + lag]; corr[lag] = s; }
   for (let lag = lo + 1; lag <= hi; lag++) if (corr[lag] > corr[lag - 1] && corr[lag] >= corr[lag + 1] && corr[lag] > bestV) { bestV = corr[lag]; best = lag; }
   if (best < 0 || bestV / r0 < 0.5) return null;
-  // primul vârf aproape la fel de mare (evită octava de jos)
   for (let lag = lo + 1; lag < best; lag++) if (corr[lag] > corr[lag - 1] && corr[lag] >= corr[lag + 1] && corr[lag] > 0.9 * bestV) { best = lag; break; }
   const a = corr[best - 1], c = corr[best + 1], p = (a - c) / (2 * (a - 2 * corr[best] + c) || 1);
   return sr / (best + p);
 }
 
 const KEYS = { a: 60, w: 61, s: 62, e: 63, d: 64, f: 65, t: 66, g: 67, y: 68, h: 69, u: 70, j: 71, k: 72 };
-addEventListener("keydown", e => { if (e.repeat || e.metaKey || e.ctrlKey) return; const m = KEYS[e.key.toLowerCase()]; if (m && document.activeElement?.tagName !== "INPUT") noteOn(m, "tastatura"); });
+addEventListener("keydown", e => { if (e.repeat || e.metaKey || e.ctrlKey || $("contDlg").open) return; const m = KEYS[e.key.toLowerCase()]; if (m && !["INPUT", "SELECT"].includes(document.activeElement?.tagName)) noteOn(m, "tastatura"); });
 addEventListener("keyup", e => { const m = KEYS[e.key.toLowerCase()]; if (m) noteOff(m); });
 
 // ---------- lista de lecții ----------
+let modVazut = false;
 function renderList() {
   const nav = $("lessons"); nav.innerHTML = "";
+  const mb = document.createElement("button");
+  mb.className = "les moduri" + (modVazut ? " sel" : "");
+  mb.innerHTML = `<span class="n">🎛</span><span class="t">Modurile pianului</span><span class="s"></span>`;
+  mb.onclick = () => arataModuri(true);
+  nav.appendChild(mb);
+  const facute = LECTII.filter(l => stele(l) > 0).length;
+  const pr = document.createElement("div"); pr.className = "prog";
+  pr.innerHTML = `Ai terminat <b>${facute}</b> din ${LECTII.length} lecții<div class="bar"><i style="width:${100 * facute / LECTII.length}%"></i></div>`;
+  nav.appendChild(pr);
   LECTII.forEach((l, k) => {
     if (l.grup) { const h = document.createElement("h2"); h.textContent = l.grup; nav.appendChild(h); }
     const b = document.createElement("button");
-    b.className = "les" + (k === L ? " sel" : "");
-    const s = Math.max(best[String(k)] || 0, best[k + "r"] || 0);
-    b.innerHTML = `<span class="n">${k + 1}</span><span class="t">${l.t}</span><span class="s">${s ? "★".repeat(s) : ""}</span>`;
+    b.className = "les" + (k === L && !modVazut ? " sel" : "");
+    const s = stele(l);
+    b.innerHTML = `<span class="n">${k + 1}</span><span class="t">${l.t}</span><span class="s">${s ? "★".repeat(s) : l.nou ? '<span class="nou">NOU</span>' : ""}</span>`;
     b.onclick = () => pick(k);
     nav.appendChild(b);
   });
@@ -615,14 +1074,285 @@ $("startBtn").onclick = () => {
   audio(); start();
 };
 $("bpm").oninput = () => { $("bpmTxt").textContent = $("bpm").value; };
-$("ritm").onchange = () => { stopRitm(); R = null; $("startBtn").textContent = "Începe"; update(); };
+$("bpm").onchange = () => { P.viteza[LECTII[L].id] = +$("bpm").value; saveP(); };
+$("ritm").onchange = () => { stopRitm(); R = null; $("startBtn").textContent = "Începe"; ritmUI(); if ($("ritm").checked && !P.vazutRitm) { arataRitmHelp(true); P.vazutRitm = 1; saveP(); } update(); };
+function arataRitmHelp(on) { $("ritmHelp").hidden = !on; $("ritmQ").setAttribute("aria-expanded", on); $("ritmQ").textContent = on ? "Ascunde explicația" : "Ce trebuie să fac?"; if (on) $("ritmHelp").scrollIntoView({ behavior: "smooth", block: "nearest" }); }
+$("ritmQ").onclick = () => arataRitmHelp($("ritmHelp").hidden);
 $("listenBtn").onclick = () => { audio(); listen(); };
 $("hint").onchange = update;
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawStaff);
 
-buildMini(); buildKb();
-let startL = 0; try { startL = Math.min(LECTII.length - 1, +(localStorage.getItem("pian-lectie") || 0)); } catch (e) {}
+// ===================== MODURILE PIANULUI (Yamaha P-45) =====================
+// Din manualul Yamaha: Do central se numește C3, prima clapă din stânga A-1, ultima C7.
+const YN = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+const Y = s => { const r = /^([A-G])(#?)(-?\d)$/.exec(s); return ({ C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 })[r[1]] + (r[2] ? 1 : 0) + (+r[3] + 2) * 12; };
+const yam = m => YN[m % 12] + (Math.floor(m / 12) - 2);
+const ord = n => n === 1 ? "primul" : `al ${n}-lea`;
+function unde(m) {
+  const first = 21 + ((m - 21) % 12), n = (m - first) / 12 + 1, r = RO_D[m % 12], d = DE_D[m % 12];
+  let rel = m === 60 ? "chiar Do central (★)" : m < 60 ? "în stânga lui Do central" : "în dreapta lui Do central";
+  return `<b>${r} (${d})</b>, ${ord(n)} ${r} de la stânga, ${rel}. În manual scrie „${yam(m)}”.`;
+}
+const VOCI = [
+  ["C0", "Grand Piano 1", "Pian de concert, sunetul de bază. Îl ai și apăsând doar butonul."],
+  ["C#0", "Grand Piano 2", "Pian mai strălucitor, se aude mai clar printre alte instrumente."],
+  ["D0", "E. Piano 1", "Pian electric vechi, cu lamele de metal. Moale încet, tăios tare."],
+  ["D#0", "E. Piano 2", "Pian electric de muzică pop."],
+  ["E0", "Pipe Organ 1", "Orgă de biserică, muzică barocă."],
+  ["F0", "Pipe Organ 2", "Orgă plină, ca în „Toccata și fuga” de Bach."],
+  ["F#0", "Strings", "Orchestră de coarde. Merge frumos cu pianul, în Dual."],
+  ["G0", "Harpsichord 1", "Clavecin, pianul vechi din Baroc. Nu contează cât de tare apeși."],
+  ["G#0", "Harpsichord 2", "Clavecin cu o octavă în plus, mai strălucitor."],
+  ["A0", "Vibraphone", "Vibrafon: plăci de metal lovite cu ciocănele moi."],
+];
+const PIESE = [["A#1", "Menuet în Sol, Bach"], ["B1", "Marșul turcesc, Mozart"], ["C2", "Für Elise, Beethoven"], ["C#2", "Vals „Micul câine”, Chopin"], ["D2", "Träumerei, Schumann"],
+  ["D#2", "Visul păpușii, Oesten"], ["E2", "Arabesca, Burgmüller"], ["F2", "Humoresca, Dvořák"], ["F#2", "The Entertainer, Joplin"], ["G2", "Fata cu părul de in, Debussy"]];
+const DEF = { voce: "Grand Piano 1", dual: null, duo: false, ecou: "potrivit sunetului", rdep: 0, bal: 0, oct1: 0, oct2: 0, atingere: "Medium (normală)",
+  metro: false, tempo: 120, mvol: 10, transp: 0, acord: 440, autoOff: true, confirm: true };
+const PASTRAT = ["atingere", "acord", "mvol", "autoOff", "confirm"];   // pianul le ține minte și după ce îl oprești
+const MODURI = [
+  { g: "Sunetul (instrumentul)", d: "Ce instrument se aude când apeși clapele. Primele zece clape din stânga.",
+    items: VOCI.map(([k, t, d]) => ({ t, k: [k], d, set: { voce: t, dual: null, duo: false, ecou: "potrivit sunetului", rdep: 0 }, voce: t })) },
+  { g: "Două sunete deodată (Dual)", d: "Pe fiecare clapă se aud două instrumente, de exemplu pian + coarde.",
+    items: [
+      { t: "Pornește Dual", tip: "dual", d: "Ții butonul și apeși DEODATĂ două clape din primele zece. Cea din stânga e sunetul 1, cea din dreapta sunetul 2." },
+      { t: "Oprește Dual", k: [], doarFn: true, d: "Apeși o dată butonul, fără nicio clapă. Revine pianul simplu (Grand Piano 1). Se oprește și metronomul.", set: { dual: null, duo: false, voce: "Grand Piano 1", metro: false, ecou: "potrivit sunetului", rdep: 0 } },
+      { t: "Sunetul 1 mai tare", k: ["C#6"], d: "Balanța dintre cele două sunete, câte un pas (de la −6 la +6).", add: { bal: 1 }, lim: [-6, 6] },
+      { t: "Sunetul 2 mai tare", k: ["B5"], d: "Balanța dintre cele două sunete, câte un pas.", add: { bal: -1 }, lim: [-6, 6] },
+      { t: "Balanță egală", k: ["C6"], d: "Cele două sunete la fel de tare.", set: { bal: 0 } },
+      { t: "Sunetul 1, o octavă mai jos", k: ["F5"], d: "Mută doar primul sunet cu 8 clape albe mai jos.", set: { oct1: -1 } },
+      { t: "Sunetul 1, normal", k: ["F#5"], d: "Primul sunet la locul lui.", set: { oct1: 0 } },
+      { t: "Sunetul 1, o octavă mai sus", k: ["G5"], d: "Mută doar primul sunet mai sus.", set: { oct1: 1 } },
+      { t: "Sunetul 2, o octavă mai jos", k: ["G#5"], d: "Mută doar al doilea sunet mai jos.", set: { oct2: -1 } },
+      { t: "Sunetul 2, normal", k: ["A5"], d: "Al doilea sunet la locul lui.", set: { oct2: 0 } },
+      { t: "Sunetul 2, o octavă mai sus", k: ["A#5"], d: "Mută doar al doilea sunet mai sus.", set: { oct2: 1 } },
+    ] },
+  { g: "Duo: doi oameni la pian", d: "Pianul se împarte în două pianine mici, unul lângă altul, cu aceleași note. Bun pentru profesor și elev.",
+    items: [{ t: "Pornește / oprește Duo", k: ["D3"], toggle: "duo", d: "Pianul se împarte la Mi-ul de lângă Do central. Fiecare jumătate sună ca un pian întreg. Stânga iese din boxa stângă, dreapta din cea dreaptă. Dacă schimbi sunetul, Duo se oprește singur. Atenție: în Duo aplicația aude notele mutate, deci nu exersa lecții așa." }] },
+  { g: "Ecoul sălii (Reverb)", d: "Cum sună camera în care cânți: cameră mică, sală de concert sau fără ecou.",
+    items: [
+      { t: "Cameră (Room)", k: ["C5"], d: "Ecou mic, ca într-o cameră.", set: { ecou: "Cameră" } },
+      { t: "Sală mică (Hall 1)", k: ["C#5"], d: "Ecou de sală mică de concert.", set: { ecou: "Sală mică" } },
+      { t: "Sală mare (Hall 2)", k: ["D5"], d: "Ecou mare, de sală mare de concert.", set: { ecou: "Sală mare" } },
+      { t: "Scenă (Stage)", k: ["D#5"], d: "Ecou de scenă.", set: { ecou: "Scenă" } },
+      { t: "Fără ecou (Off)", k: ["E5"], d: "Sunetul curat, fără nimic adăugat.", set: { ecou: "Fără ecou" } },
+      { t: "Ecou mai slab", k: ["A4"], d: "Câte un pas (de la 0 la 10).", add: { rdep: -1 }, lim: [-10, 10] },
+      { t: "Ecou mai puternic", k: ["B4"], d: "Câte un pas.", add: { rdep: 1 }, lim: [-10, 10] },
+      { t: "Ecoul ca la început", k: ["A#4"], d: "Adâncimea potrivită pentru sunetul ales.", set: { rdep: 0 } },
+    ] },
+  { g: "Atingerea", d: "Cât de mult contează cât de tare apeși clapa. Pianul o ține minte și după ce îl oprești.",
+    items: [
+      { t: "Fixă (Fixed)", k: ["A2"], d: "Sună la fel de tare oricum ai apăsa.", set: { atingere: "Fixă" } },
+      { t: "Ușoară (Soft)", k: ["A#2"], d: "Diferența dintre încet și tare e mică. Bună pentru degete obosite.", set: { atingere: "Ușoară (Soft)" } },
+      { t: "Normală (Medium)", k: ["B2"], d: "Ca la un pian adevărat. Așa vine din fabrică.", set: { atingere: "Medium (normală)" } },
+      { t: "Grea (Hard)", k: ["C3"], d: "Trebuie să apeși tare ca să sune tare. E chiar Do central.", set: { atingere: "Grea (Hard)" } },
+    ] },
+  { g: "Metronomul din pian", d: "Pianul are și el metronom. În aplicație ai altul, la „Cu ritm”, deci nu le porni pe amândouă deodată.",
+    items: [
+      { t: "Pornește / oprește metronomul", k: ["E3"], toggle: "metro", d: "Mi-ul de lângă Do central." },
+      { t: "Alege viteza", tip: "tempo", d: "Viteza se scrie cu cifre, apăsând pe rând trei clape. Fiecare clapă de la Fa (F3) la Re (D4) e o cifră, de la 0 la 9." },
+      { t: "Viteza ca la început (120)", k: ["D#4"], d: "Pune la loc viteza de fabrică.", set: { tempo: 120 } },
+      { t: "Mai puține bătăi pe măsură", k: ["E4"], d: "Cu cât sunt mai multe bătăi pe măsură, prima bătaie sună ca un clopoțel." },
+      { t: "Mai multe bătăi pe măsură", k: ["F4"], d: "Din fabrică nu e accentuată nicio bătaie." },
+      { t: "Metronom mai încet", k: ["F#4"], d: "Câte un pas, de la 1 la 20.", add: { mvol: -1 }, lim: [1, 20] },
+      { t: "Volumul metronomului normal", k: ["G4"], d: "Înapoi la 10.", set: { mvol: 10 } },
+      { t: "Metronom mai tare", k: ["G#4"], d: "Câte un pas.", add: { mvol: 1 }, lim: [1, 20] },
+    ] },
+  { g: "Transpunere", d: "Mută tot pianul mai sus sau mai jos, cu câte o clapă. Atenție: transpus, pianul trimite aplicației alte note decât cele apăsate, deci la lecții ține-l pe 0.",
+    items: [
+      { t: "Cu o clapă mai jos", k: ["F6"], d: "Până la −6.", add: { transp: -1 }, lim: [-6, 6] },
+      { t: "Normal (0)", k: ["F#6"], d: "Fiecare clapă sună cum scrie pe ea.", set: { transp: 0 } },
+      { t: "Cu o clapă mai sus", k: ["G6"], d: "Până la +6.", add: { transp: 1 }, lim: [-6, 6] },
+    ] },
+  { g: "Acordajul fin", d: "Ca să cânți împreună cu alt instrument sau peste o melodie. Pianul îl ține minte.",
+    items: [
+      { t: "Puțin mai jos", k: ["G#6"], d: "Câte 0,2 Hz.", add: { acord: -0.2 }, lim: [414.8, 466.8] },
+      { t: "Puțin mai sus", k: ["A6"], d: "Câte 0,2 Hz.", add: { acord: 0.2 }, lim: [414.8, 466.8] },
+      { t: "La = 442 Hz", k: ["A#6"], d: "Cum se acordează multe orchestre.", set: { acord: 442 } },
+      { t: "La = 440 Hz (normal)", k: ["B6"], d: "Acordajul de fabrică.", set: { acord: 440 } },
+    ] },
+  { g: "Piese de ascultat", d: "Pianul are 10 piese cântate de el și câte un demo pentru fiecare sunet. Le oprești apăsând din nou butonul.",
+    items: [
+      ...PIESE.map(([k, t]) => ({ t, k: [k], d: "Ascultă piesa. După ea, pianul trece singur la următoarea." })),
+      { t: "Demo pentru fiecare sunet", k: ["C1", "C#1", "D1", "D#1", "E1", "F1", "F#1", "G1", "G#1", "A1"], d: "Câte o clapă pentru fiecare sunet, în aceeași ordine ca sunetele: prima e Grand Piano 1, ultima Vibraphone. Apeși doar una dintre ele." },
+    ] },
+  { g: "Altele", d: "Setări pe care le schimbi rar.",
+    items: [
+      { t: "Oprește oprirea automată", k: ["A-1"], d: "Din fabrică pianul se stinge singur după 15 minute fără să-l atingi. Așa nu se mai stinge.", set: { autoOff: false } },
+      { t: "Pornește oprirea automată", k: ["A#-1"], d: "Pianul se stinge singur după 15 minute de pauză.", set: { autoOff: true } },
+      { t: "Sunetele de confirmare", k: ["C7"], toggle: "confirm", d: "Sunetul scurt pe care îl face pianul când schimbi o setare: urcă = pornit, coboară = oprit, „clic” = schimbat. Ultima clapă din dreapta." },
+      { t: "Pianul ca din fabrică", k: ["C7"], putere: true, d: "Șterge toate setările ținute minte (atingere, acordaj, volumul metronomului…).", set: { ...DEF } },
+    ] },
+];
+const ETICH = { voce: "Sunetul", dual: "Dual", duo: "Duo", ecou: "Ecoul", rdep: "Cât ecou", bal: "Balanța Dual", atingere: "Atingerea", metro: "Metronomul pianului",
+  tempo: "Viteza metronomului", mvol: "Volumul metronomului", transp: "Transpunerea", acord: "Acordajul (La)", autoOff: "Oprire automată", confirm: "Sunete de confirmare" };
+const stare = () => ({ ...DEF, ...(P.pian || {}) });
+function valoare(k, v) {
+  if (k === "dual") return v ? v.join(" + ") : "oprit";
+  if (["duo", "metro"].includes(k)) return v ? "pornit" : "oprit";
+  if (["autoOff", "confirm"].includes(k)) return v ? "da" : "nu";
+  if (k === "rdep") return v === 0 ? "ca la început" : (v > 0 ? "+" : "") + v;
+  if (k === "bal" || k === "transp") return v === 0 ? "0" : (v > 0 ? "+" : "") + v;
+  if (k === "acord") return (Math.round(v * 10) / 10).toFixed(1).replace(".", ",") + " Hz";
+  return String(v);
+}
+function renderAcum() {
+  const s = stare();
+  $("acum").innerHTML = Object.keys(ETICH).filter(k => !(k === "bal" && !s.dual)).map(k => {
+    const sch = JSON.stringify(s[k]) !== JSON.stringify(DEF[k]);
+    return `<div class="${sch ? "sch" : ""}">${ETICH[k]}<b>${valoare(k, s[k])}</b></div>`;
+  }).join("");
+}
+let modSel = null, lastVoce = null;
+function renderModList() {
+  const s = stare();
+  $("modList").innerHTML = "";
+  MODURI.forEach(gr => {
+    const c = document.createElement("div"); c.className = "card mg";
+    c.innerHTML = `<h3>${gr.g}</h3><p>${gr.d}</p><div class="its"></div>`;
+    gr.items.forEach(it => {
+      const b = document.createElement("button");
+      const eAcum = it.voce ? s.voce === it.voce && !s.dual : it.set && Object.keys(it.set).length === 1 ? JSON.stringify(s[Object.keys(it.set)[0]]) === JSON.stringify(Object.values(it.set)[0]) && !("rdep" in it.set) && !("bal" in it.set) && !("oct1" in it.set) && !("oct2" in it.set) : false;
+      b.className = "mi" + (it === modSel ? " sel" : "") + (eAcum ? " acum-e" : "");
+      const kt = it.doarFn ? "doar butonul" : it.tip === "tempo" ? "3 clape" : it.tip === "dual" ? "2 clape" : it.k.length > 2 ? it.k[0] + "…" + it.k[it.k.length - 1] : it.k.map(k => k.replace("B", "H")).join(" ");
+      b.innerHTML = `<span class="t">${it.t}</span><span class="k">${kt}</span>`;
+      b.onclick = () => { showMod(it); document.getElementById("modCard").scrollIntoView({ behavior: "smooth", block: "start" }); };
+      c.querySelector(".its").appendChild(b);
+    });
+    $("modList").appendChild(c);
+  });
+}
+// claviatura întreagă, cu numele Yamaha sub fiecare Do
+let fullEl = {};
+function buildFull() {
+  const kb = $("kbFull"); kb.innerHTML = ""; fullEl = {};
+  const whites = []; for (let m = 21; m <= 108; m++) if (!isBlack(m)) whites.push(m);
+  const w = 100 / whites.length;
+  whites.forEach((m, k) => {
+    const e = document.createElement("div"); e.className = "wk" + (m === 60 ? " c4" : "");
+    e.style.left = k * w + "%"; e.style.width = w + "%";
+    e.innerHTML = `<span class="de">${DE_D[m % 12]}</span><span class="lab">${m % 12 === 0 || m === 21 ? yam(m) : ""}</span>`;
+    kb.appendChild(e); fullEl[m] = e;
+  });
+  for (let m = 22; m <= 108; m++) if (isBlack(m)) {
+    const k = whites.indexOf(m - 1), e = document.createElement("div");
+    e.className = "bk"; e.style.left = ((k + 1) * w - w * 0.3) + "%"; e.style.width = w * 0.6 + "%";
+    kb.appendChild(e); fullEl[m] = e;
+  }
+}
+function marcheaza(lista) {   // lista: [[midi, eticheta], ...]
+  Object.values(fullEl).forEach(e => { e.classList.remove("target"); e.querySelector(".badge")?.remove(); });
+  lista.forEach(([m, et]) => { const e = fullEl[m]; if (!e) return; e.classList.add("target");
+    if (et != null) { let b = e.querySelector(".badge"); if (!b) { b = document.createElement("span"); b.className = "badge"; e.appendChild(b); } b.textContent = b.textContent ? b.textContent + "," + et : et; } });
+  if (lista.length) {
+    const box = $("kbFull").parentElement, e = fullEl[lista[0][0]];
+    requestAnimationFrame(() => { box.scrollLeft = e.offsetLeft - box.clientWidth / 2 + 20; });
+  }
+}
+const DIG = ["F3", "F#3", "G3", "G#3", "A3", "A#3", "B3", "C4", "C#4", "D4"];
+function showMod(it) {
+  modSel = it; renderModList();
+  const s = stare();
+  $("modTitle").textContent = it.t;
+  $("modDesc").textContent = it.d || "";
+  $("pbFn").classList.toggle("on", !it.putere); $("pbOn").classList.toggle("on", !!it.putere);
+  $("modExtra").innerHTML = ""; $("modOk").disabled = false; $("modOk").hidden = false; $("modTrimite").hidden = true; $("modNote").textContent = "";
+  const pasi = [];
+  const tine = "Cu mâna stângă <b>ține apăsat butonul GRAND PIANO/FUNCTION</b> (îl vezi galben mai sus) și nu-i da drumul.";
+  const final = "Dai drumul la amândouă. Pianul face un sunet scurt: urcă = pornit, coboară = oprit, „clic” = schimbat.";
+  if (it.doarFn) { pasi.push("<b>Apasă o singură dată butonul GRAND PIANO/FUNCTION</b>, fără nicio clapă. Gata."); marcheaza([]); }
+  else if (it.putere) {
+    pasi.push("Oprește pianul de la butonul ⏻.", `Cu mâna dreaptă <b>ține apăsată ultima clapă din dreapta</b>: ${unde(108)}`, "Ținând clapa, apasă ⏻ ca să pornești pianul. Lumina clipește: se șterg setările. Nu-l opri cât clipește.");
+    marcheaza([[108, "ține"]]);
+  } else if (it.tip === "tempo") {
+    $("modExtra").innerHTML = `<div class="tempoIn controls"><label class="chk">Viteza dorită <input type="number" id="tempoV" min="32" max="280" value="${s.tempo}" style="width:90px"></label><span class="note">între 32 și 280 de bătăi pe minut</span></div>`;
+    const arata = () => {
+      let v = Math.round(+$("tempoV").value || 0); const ok = v >= 32 && v <= 280;
+      $("modOk").disabled = !ok;
+      if (!ok) { $("modPas").innerHTML = "<li>Scrie o viteză între 32 și 280.</li>"; marcheaza([]); return; }
+      const cif = String(v).padStart(3, "0").split("").map(Number);
+      $("modPas").innerHTML = [tine, ...cif.map((c, j) => `Apasă clapa cu numărul <b>${j + 1}</b> (cifra ${c}): ${unde(Y(DIG[c]))}`), "Dai drumul la buton. Metronomul merge acum cu " + v + "."].map(x => `<li>${x}</li>`).join("");
+      marcheaza(cif.map((c, j) => [Y(DIG[c]), String(j + 1)]));
+      modSel._set = { tempo: v };
+    };
+    $("tempoV").oninput = arata; arata(); return;
+  } else if (it.tip === "dual") {
+    const opt = sel => VOCI.map(([k, t]) => `<option value="${k}"${k === sel ? " selected" : ""}>${t}</option>`).join("");
+    $("modExtra").innerHTML = `<div class="controls"><label class="chk">Sunetul 1 <select id="dv1">${opt("C0")}</select></label><label class="chk">Sunetul 2 <select id="dv2">${opt("F#0")}</select></label></div>`;
+    const arata = () => {
+      let a = $("dv1").value, b = $("dv2").value;
+      if (a === b) { $("modPas").innerHTML = "<li>Alege două sunete diferite.</li>"; marcheaza([]); $("modOk").disabled = true; return; }
+      if (Y(a) > Y(b)) [a, b] = [b, a];   // pe pian, clapa din stânga e mereu sunetul 1
+      $("modOk").disabled = false;
+      const ta = VOCI.find(v => v[0] === a)[1], tb = VOCI.find(v => v[0] === b)[1];
+      $("modPas").innerHTML = [tine, `Cu mâna dreaptă apasă <b>deodată</b> cele două clape galbene: ${unde(Y(a))} și ${unde(Y(b))}`, `Sunetul 1 e ${ta}, sunetul 2 e ${tb}. (Clapa din stânga e mereu sunetul 1.)`, final].map(x => `<li>${x}</li>`).join("");
+      marcheaza([[Y(a), "1"], [Y(b), "2"]]);
+      modSel._set = { dual: [ta, tb], voce: ta, duo: false };
+    };
+    $("dv1").onchange = arata; $("dv2").onchange = arata; arata(); return;
+  } else {
+    const ms = it.k.map(Y);
+    if (ms.length === 1) pasi.push(tine, `Cu mâna dreaptă <b>apasă clapa galbenă</b>: ${unde(ms[0])}`, final);
+    else pasi.push(tine, `Cu mâna dreaptă apasă <b>una</b> dintre clapele galbene, de la ${unde(ms[0])}`, final);
+    marcheaza(ms.map((m, j) => [m, ms.length > 1 ? String(j + 1) : null]));
+    if (it.add) { const [k, d] = Object.entries(it.add)[0]; $("modNote").textContent = `Acum: ${valoare(k, s[k])}. Apeși de câte ori ai nevoie, iar eu număr la fiecare „Am făcut”.`; }
+    if (it.voce) {
+      lastVoce = { v: it.voce, t: Date.now() };
+      const mp = Object.entries(P.pcMap).find(([, v]) => v.voce === it.voce);
+      if (mp && midiOut) { $("modTrimite").hidden = false; $("modTrimite").onclick = () => trimiteSunet(it.voce); }
+      else if (midiOut) $("modNote").textContent = "Cu cablul pus, după ce schimbi o dată sunetul pe pian, aplicația îl învață și data viitoare îl poate schimba ea.";
+    }
+    if (!it.set && !it.add && !it.toggle) { $("modOk").disabled = true; $("modOk").hidden = true; } else $("modOk").hidden = false;
+  }
+  $("modPas").innerHTML = pasi.map(x => `<li>${x}</li>`).join("");
+}
+$("modOk").onclick = () => {
+  const it = modSel; if (!it) return;
+  const s = stare(), nou = { ...s };
+  if (it._set) Object.assign(nou, it._set);
+  if (it.set) Object.assign(nou, it.set);
+  if (it.add) for (const [k, d] of Object.entries(it.add)) { let v = Math.round((nou[k] + d) * 10) / 10; if (it.lim) v = Math.max(it.lim[0], Math.min(it.lim[1], v)); nou[k] = v; }
+  if (it.toggle) { nou[it.toggle] = !nou[it.toggle]; if (it.toggle === "duo" && nou.duo) nou.dual = null; }
+  P.pian = nou; saveP(); renderAcum(); renderModList();
+  toast("Ținut minte ✓ " + (it.add ? `${ETICH[Object.keys(it.add)[0]]}: ${valoare(Object.keys(it.add)[0], nou[Object.keys(it.add)[0]])}` : it.t));
+  if (it.add) showMod(it);
+};
+$("resetPornire").onclick = () => {
+  const s = stare(), nou = { ...DEF }; PASTRAT.forEach(k => nou[k] = s[k]);
+  P.pian = nou; saveP(); renderAcum(); renderModList(); toast("Am pus setările de la pornire ✓");
+};
+// cu cablul: pianul anunță când schimbi sunetul, iar aplicația învață ce număr are fiecare sunet
+function schimbareSunet(pc) {
+  const cheie = String(pc), stiut = P.pcMap[cheie];
+  let v = null;
+  if (stiut && (stiut.msb ?? 0) === bank[0] && (stiut.lsb ?? 0) === bank[1]) v = stiut.voce;
+  else if (lastVoce && Date.now() - lastVoce.t < 90000) { v = lastVoce.v; P.pcMap[cheie] = { voce: v, msb: bank[0], lsb: bank[1] }; }
+  if (!v) return;
+  P.pian = { ...stare(), voce: v, dual: null, duo: false }; saveP(); renderAcum(); renderModList();
+  toast("Pianul spune: sunetul e acum " + v);
+}
+function trimiteSunet(voce) {
+  const e = Object.entries(P.pcMap).find(([, x]) => x.voce === voce); if (!e || !midiOut) return;
+  const [pc, x] = e;
+  midiOut.send([0xB0, 0, x.msb ?? 0]); midiOut.send([0xB0, 32, x.lsb ?? 0]); midiOut.send([0xC0, +pc]);
+  P.pian = { ...stare(), voce, dual: null, duo: false }; saveP(); renderAcum(); renderModList();
+  toast("Am schimbat sunetul pe pian: " + voce);
+}
+function renderModuri() { renderAcum(); renderModList(); }
+function arataModuri(on) {
+  modVazut = on;
+  $("stageModuri").hidden = !on; $("stageLectii").hidden = on;
+  if (on) { stopRitm(); running = false; playing = false; renderModuri(); scrollTo({ top: 0, behavior: "smooth" }); }
+  renderList();
+}
+
+// ===================== PORNIRE =====================
+loadP();
+buildMini(); buildKb(); buildFull();
+let startL = Math.max(0, LECTII.findIndex(l => l.id === P.lectie));
 pick(startL);
+renderContBtn();
+cloudInit();
 </script>
 <script>
 // aplicație instalabilă (Android: Chrome → „Instalează aplicația”); merge și fără internet după prima deschidere
