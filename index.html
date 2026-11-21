@@ -189,6 +189,14 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 .sync{font-size:13px;color:var(--muted)}
 .box{border:1px solid var(--line);border-radius:12px;padding:12px;display:grid;gap:8px;font-size:14px;color:var(--muted)}
 .box b{color:var(--ink)}
+.fld{display:grid;gap:6px;font-size:13px;font-weight:600;color:var(--muted)}
+.fld input[type=text]{font:inherit;font-size:15px;font-weight:500;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--ink);padding:8px 10px}
+.fld label.chk{margin-left:0;font-weight:400;align-items:flex-start}
+.fld label.chk input{margin-top:4px}
+.lesrow{display:grid;grid-template-columns:1fr auto;align-items:center}
+.lesrow .del{border:0;background:none;color:var(--muted);padding:4px 8px;font-size:15px;opacity:.6}
+.lesrow .del:hover{opacity:1;color:var(--bad)}
+.les.add{border:1px dashed var(--line);margin-top:6px;color:var(--accent);font-weight:600}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -315,6 +323,19 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
 
 <dialog id="contDlg"><div class="dlg" id="contBody"></div></dialog>
 <input type="file" id="fileIn" accept="application/json,.json" hidden>
+<input type="file" id="midiIn" accept=".mid,.midi,audio/midi,audio/x-midi" hidden>
+<dialog id="midiDlg"><div class="dlg">
+  <h2>Melodie nouă din fișier</h2>
+  <span class="note" id="midiInfo"></span>
+  <label class="fld">Cum se numește<input type="text" id="midiNume" maxlength="60"></label>
+  <div class="fld">Ce vrei să înveți
+    <label class="chk"><input type="radio" name="mana" value="dreapta" checked> <span><b>Mâna dreaptă</b>: melodia, de obicei notele de sus</span></label>
+    <label class="chk"><input type="radio" name="mana" value="stanga"> <span><b>Mâna stângă</b>: acompaniamentul, notele de jos</span></label>
+    <label class="chk"><input type="radio" name="mana" value="ambele"> <span><b>Ambele mâini</b>: mai greu, după ce le știi pe fiecare</span></label>
+  </div>
+  <span class="note">Melodia rămâne doar la tine: pe acest calculator și în contul tău, dacă ești conectat. Nu ajunge pe GitHub.</span>
+  <div class="row"><button class="main" id="midiAdaug">Adaugă lecția</button><button id="midiAnulez">Renunț</button></div>
+</div></dialog>
 
 <script>
 // ===================== CONTUL (memoria în cloud) =====================
@@ -333,7 +354,7 @@ const $ = id => document.getElementById(id);
 
 // ---------- profilul: tot ce ține minte aplicația ----------
 const LS = "pian-profil";
-const nouP = () => ({ v: 1, best: {}, lectie: "0", viteza: {}, hist: [], pian: {}, pcMap: {}, upd: 0 });
+const nouP = () => ({ v: 1, best: {}, lectie: "0", viteza: {}, hist: [], pian: {}, pcMap: {}, melodii: [], sterse: [], upd: 0 });
 let P = nouP();
 function loadP() {
   let p = null; try { p = JSON.parse(localStorage.getItem(LS) || "null"); } catch (e) {}
@@ -357,6 +378,8 @@ function mergeP(a, b) {
   o.viteza = { ...(vechi.viteza || {}), ...(nou.viteza || {}) };
   o.pian = { ...(vechi.pian || {}), ...(nou.pian || {}) };
   o.pcMap = { ...(vechi.pcMap || {}), ...(nou.pcMap || {}) };
+  o.sterse = [...new Set([...(a.sterse || []), ...(b.sterse || [])])];
+  const ids = new Set(); o.melodii = [...(vechi.melodii || []), ...(nou.melodii || [])].filter(x => !o.sterse.includes(x.id) && !ids.has(x.id) && ids.add(x.id));
   o.upd = Math.max(a.upd || 0, b.upd || 0);
   return o;
 }
@@ -380,7 +403,7 @@ async function cloudLoad() {
   try {
     setSync("se încarcă…");
     const s = await fb.F.getDoc(fb.F.doc(fb.db, "pian", user.uid));
-    if (s.exists()) { const c = JSON.parse(s.data().profil || "{}"); P = mergeP(P, c); saveLocal(); }
+    if (s.exists()) { const c = JSON.parse(s.data().profil || "{}"); P = mergeP(P, c); saveLocal(); syncMelodii(); }
     await cloudPush();
     renderList(); renderModuri();
   } catch (e) { console.warn(e); setSync("nu am putut citi contul"); }
@@ -415,7 +438,7 @@ $("fileIn").onchange = async () => {
   try {
     const c = JSON.parse(await f.text());
     const p = c.best && !c.v ? { ...nouP(), best: c.best } : c;      // acceptă și copia veche, doar cu stelele
-    P = mergeP(P, p); P.upd = Date.now(); saveP(); renderList(); renderModuri(); renderCont();
+    P = mergeP(P, p); P.upd = Date.now(); saveP(); syncMelodii(); renderList(); renderModuri(); renderCont();
     toast("Am încărcat progresul din fișier ✓");
   } catch (e) { toast("Fișierul nu e o copie a aplicației de pian."); }
   $("fileIn").value = "";
@@ -588,6 +611,128 @@ const LECTII = [
 ];
 const stele = l => Math.max(P.best[l.id] || 0, P.best[l.id + "r"] || 0);
 
+// ===================== MELODIILE MELE (din fișiere MIDI) =====================
+// Citește un fișier .mid și scoate notele: momentul în care începe fiecare, cât ține și pe ce pistă e.
+function citesteMidi(buf) {
+  const d = new DataView(buf); let p = 0;
+  const u8 = () => d.getUint8(p++), u16 = () => { const v = d.getUint16(p); p += 2; return v; }, u32 = () => { const v = d.getUint32(p); p += 4; return v; };
+  const vlq = () => { let v = 0, b; do { b = u8(); v = (v << 7) | (b & 127); } while (b & 128); return v; };
+  const tag = () => String.fromCharCode(u8(), u8(), u8(), u8());
+  if (tag() !== "MThd") throw new Error("nu e MIDI");
+  const hl = u32(), fmt = u16(), nt = u16(), div = u16(); p = 8 + hl;
+  if (div & 0x8000) throw new Error("timp SMPTE");
+  const out = { tpq: div, tempo: 500000, num: 4, den: 4, piste: [] };
+  for (let t = 0; t < nt && p < d.byteLength - 8; t++) {
+    const id = tag(), len = u32(), end = p + len;
+    if (id !== "MTrk") { p = end; continue; }
+    const pista = { nume: "", note: [] }, deschise = {}; let tick = 0, rs = 0;
+    while (p < end) {
+      tick += vlq();
+      let st = d.getUint8(p);
+      if (st & 128) { p++; if (st < 0xF0) rs = st; } else st = rs;
+      if (st === 0xFF) {
+        const ty = u8(), l = vlq(), s = p; p += l;
+        if (ty === 0x51 && l === 3 && !out.tempoSet) { out.tempo = (d.getUint8(s) << 16) | (d.getUint8(s + 1) << 8) | d.getUint8(s + 2); out.tempoSet = true; }
+        else if (ty === 0x58 && !out.sigSet) { out.num = d.getUint8(s); out.den = 2 ** d.getUint8(s + 1); out.sigSet = true; }
+        else if (ty === 0x03) pista.nume = new TextDecoder().decode(new Uint8Array(buf, s, l)).trim();
+        else if (ty === 0x2F) break;
+      } else if (st === 0xF0 || st === 0xF7) { p += vlq(); }
+      else {
+        const tip = st & 0xF0, ch = st & 15, a = u8(), b = (tip === 0xC0 || tip === 0xD0) ? 0 : u8();
+        if (ch === 9) continue;                                   // canalul 10 e de tobe
+        const k = ch * 128 + a;
+        if (tip === 0x90 && b > 0) { (deschise[k] = deschise[k] || []).push(tick); }
+        else if (tip === 0x80 || (tip === 0x90 && b === 0)) {
+          const t0 = (deschise[k] || []).shift();
+          if (t0 != null && a >= 21 && a <= 108) pista.note.push({ m: a, t: t0, l: Math.max(1, tick - t0) });
+        }
+      }
+    }
+    p = end;
+    if (pista.note.length) out.piste.push(pista);
+  }
+  if (!out.piste.length) throw new Error("fără note");
+  return out;
+}
+// Din notele brute face lecția: notele care încep împreună devin un acord, iar durata se rotunjește la ¼ de bătaie.
+function faLectie(mid, mana) {
+  let toate;
+  if (mid.piste.length === 2) {                                  // două piste: de obicei una e mâna dreaptă, alta stânga
+    const med = pi => pi.note.reduce((s, n) => s + n.m, 0) / pi.note.length;
+    const [sus, jos] = med(mid.piste[0]) >= med(mid.piste[1]) ? mid.piste : [mid.piste[1], mid.piste[0]];
+    toate = mana === "dreapta" ? sus.note : mana === "stanga" ? jos.note : [...sus.note, ...jos.note];
+  } else {
+    toate = mid.piste.flatMap(pi => pi.note);
+    if (mana === "dreapta") toate = toate.filter(n => n.m >= 60); else if (mana === "stanga") toate = toate.filter(n => n.m < 60);
+  }
+  if (!toate.length) return null;
+  const q = x => Math.max(0.25, Math.round(x / mid.tpq * 4) / 4);
+  const grup = new Map();
+  for (const n of toate) { const t = Math.round(n.t / mid.tpq * 4) / 4; if (!grup.has(t)) grup.set(t, []); grup.get(t).push(n); }
+  const ts = [...grup.keys()].sort((a, b) => a - b);
+  return ts.map((t, k) => {
+    const ns = grup.get(t), ms = [...new Set(ns.map(n => n.m))].sort((a, b) => a - b);
+    const pana = k + 1 < ts.length ? ts[k + 1] - t : q(Math.max(...ns.map(n => n.l)));
+    const tine = Math.min(pana, q(Math.max(...ns.map(n => n.l))));
+    const o = { m: ms.length > 1 ? ms : ms[0], f: null, d: pana, t };
+    if (tine < pana) o.h = tine;                                 // pauză după notă: n-o ții până la următoarea
+    return o;
+  });
+}
+// O melodie lungă se taie în bucăți de câteva măsuri, ca să le înveți pe rând.
+function imparte(note, mas) {
+  const parti = []; let cur = [], ult = -1;
+  for (const n of note) {
+    const m = Math.floor(n.t / mas + 1e-9);
+    if (cur.length >= 24 && m !== ult) { parti.push(cur); cur = []; }   // tăiem doar la început de măsură
+    cur.push(n); ult = m;
+  }
+  if (cur.length) { if (cur.length < 8 && parti.length) parti[parti.length - 1].push(...cur); else parti.push(cur); }
+  return parti.map(ps => ps.map(({ t, ...n }) => n));
+}
+const esteMea = l => !!l.mea;
+function syncMelodii() {
+  const sel = LECTII[L] && LECTII[L].id;
+  for (let k = LECTII.length - 1; k >= 0; k--) if (esteMea(LECTII[k])) LECTII.splice(k, 1);
+  const sterse = new Set(P.sterse || []);
+  (P.melodii || []).filter(x => !sterse.has(x.id)).forEach((x, k) => LECTII.push({ ...x, mea: true, grup: k === 0 ? "Melodiile mele" : undefined }));
+  const k = LECTII.findIndex(l => l.id === sel); L = k >= 0 ? k : 0;
+}
+let midiCitit = null;
+$("midiIn").onchange = async () => {
+  const f = $("midiIn").files[0]; $("midiIn").value = ""; if (!f) return;
+  try { midiCitit = citesteMidi(await f.arrayBuffer()); }
+  catch (e) { toast("N-am putut citi fișierul. Alege un fișier MIDI (.mid sau .midi)."); return; }
+  const tot = midiCitit.piste.reduce((s, pi) => s + pi.note.length, 0), bpm = Math.round(60000000 / midiCitit.tempo);
+  $("midiNume").value = f.name.replace(/\.midi?$/i, "").replace(/[_-]+/g, " ").trim().slice(0, 60);
+  $("midiInfo").textContent = `${tot} de note, ${midiCitit.piste.length === 1 ? "o pistă" : midiCitit.piste.length + " piste"}, măsura ${midiCitit.num}/${midiCitit.den}, viteza originală ${bpm} bătăi pe minut.`;
+  $("midiDlg").showModal();
+};
+$("midiAnulez").onclick = () => $("midiDlg").close();
+$("midiAdaug").onclick = () => {
+  const mana = document.querySelector('input[name="mana"]:checked').value, nume = $("midiNume").value.trim() || "Melodia mea";
+  const note = faLectie(midiCitit, mana);
+  if (!note || !note.length) { toast(mana === "stanga" ? "Nu găsesc note pentru mâna stângă în fișier." : "Nu găsesc note pentru mâna dreaptă în fișier."); return; }
+  const mas = midiCitit.den === 4 || midiCitit.den === 8 ? Math.round(midiCitit.num * 4 / midiCitit.den) || 4 : 4;
+  const parti = imparte(note, mas), cheie = mana === "ambele" ? "mare" : mana === "stanga" ? "fa" : "sol";
+  const bpm = Math.round(60000000 / midiCitit.tempo), baza = "m" + Date.now().toString(36);
+  const manaTxt = { dreapta: "mâna dreaptă", stanga: "mâna stângă", ambele: "ambele mâini" }[mana];
+  P.melodii = P.melodii || [];
+  parti.forEach((ns, k) => P.melodii.push({ id: baza + "-" + k, t: parti.length > 1 ? `${nume} (${k + 1}/${parti.length})` : nume,
+    d: `Din fișierul tău MIDI, ${manaTxt}.${parti.length > 1 ? ` Partea ${k + 1} din ${parti.length}: învaț-o pe rând, apoi treci la următoarea.` : ""} Viteza originală e ${bpm}; începe mai încet și crește câte 5. Degetele nu sunt scrise în fișier, alege-le tu.`,
+    note: ns, cheie, masura: mas, cant: baza }));
+  saveP(); $("midiDlg").close();
+  syncMelodii(); pick(LECTII.findIndex(l => l.id === baza + "-0"));
+  toast(parti.length > 1 ? `Am adăugat „${nume}” în ${parti.length} părți ✓` : `Am adăugat „${nume}” ✓`);
+};
+function stergeMelodie(l) {
+  const toate = (P.melodii || []).filter(x => x.cant === l.cant);
+  if (!confirm(`Ștergi „${l.t.replace(/ \(\d+\/\d+\)$/, "")}”${toate.length > 1 ? ` (toate cele ${toate.length} părți)` : ""} din lista ta?`)) return;
+  P.sterse = [...new Set([...(P.sterse || []), ...toate.map(x => x.id)])];
+  P.melodii = P.melodii.filter(x => x.cant !== l.cant);
+  saveP(); const era = LECTII[L] && LECTII[L].cant === l.cant; syncMelodii(); if (era) pick(0); else renderList();
+}
+
 // ---------- stare ----------
 let L = 0, notes = [], i = 0, errs = 0, wrongBy = {}, running = false, playing = false, done = false, got = new Set();
 
@@ -707,6 +852,8 @@ function drawStaff() {
         const up = (mn + mx) / 2 < 4, yLo = Math.max(...ys), yHi = Math.min(...ys);
         if (up) s += `<line x1="${x + 9}" x2="${x + 9}" y1="${yLo - 2}" y2="${yHi - 46}" stroke="${col}" stroke-width="1.8"/>`;
         else s += `<line x1="${x - 9}" x2="${x - 9}" y1="${yHi + 2}" y2="${yLo + 46}" stroke="${col}" stroke-width="1.8"/>`;
+        if (n.d <= 0.25) s += up ? `<path d="M${x + 9} ${yHi - 46} q14 10 10 26 M${x + 9} ${yHi - 36} q14 10 10 26" fill="none" stroke="${col}" stroke-width="2"/>`
+                                  : `<path d="M${x - 9} ${yLo + 46} q14 -10 10 -26 M${x - 9} ${yLo + 36} q14 -10 10 -26" fill="none" stroke="${col}" stroke-width="2"/>`;
         if (n.d === 0.5) s += up ? `<path d="M${x + 9} ${yHi - 46} q14 10 10 26" fill="none" stroke="${col}" stroke-width="2"/>`
                                  : `<path d="M${x - 9} ${yLo + 46} q14 -10 10 -26" fill="none" stroke="${col}" stroke-width="2"/>`;
       }
@@ -846,7 +993,7 @@ async function listen() {
   if (cuRitm) { const a = audio(), t = a.currentTime + 0.05, tot = notes.reduce((s, n) => s + n.d, 0); for (let k = 0; k < Math.ceil(tot); k++) click(t + k * beat, k % mas === 0, false); }
   for (let k = 0; k < notes.length && playing; k++) {
     const n = notes[k];
-    if ($("sound").checked) MS(n).forEach(m => tone(m, n.d * beat, 0, MS(n).length > 1 ? 0.16 : 0.28));
+    if ($("sound").checked) MS(n).forEach(m => tone(m, (n.h ?? n.d) * beat, 0, MS(n).length > 1 ? 0.16 : 0.28));
     clearMarks("target"); markNote(n);
     i = k; drawStaff();
     await new Promise(r => setTimeout(r, n.d * beat * 1000));
@@ -951,7 +1098,7 @@ function holdRitm(m) {
     const h = R.hit[k];
     if (!h || !h.ms.includes(m) || R.hold[k] !== null) continue;
     if (h.src === "mic") return;              // microfonul nu știe când ai ridicat degetul
-    const tinut = audio().currentTime - h.t, want = notes[k].d * R.b;
+    const tinut = audio().currentTime - h.t, want = (notes[k].h ?? notes[k].d) * R.b;
     R.hold[k] = tinut / want;
     if (tinut < want * 0.6) setMsg("↧", `Ai ridicat degetul prea repede de pe ${numeN(notes[k])}. Ține-o ${CAT(notes[k].d)}.`, "bad");
     $("holdFill").style.width = "0"; $("hb").classList.remove("gata");
@@ -1061,9 +1208,9 @@ function renderList() {
   mb.innerHTML = `<span class="n">🎛</span><span class="t">Modurile pianului</span><span class="s"></span>`;
   mb.onclick = () => arataModuri(true);
   nav.appendChild(mb);
-  const facute = LECTII.filter(l => stele(l) > 0).length;
+  const baza = LECTII.filter(l => !esteMea(l)), facute = baza.filter(l => stele(l) > 0).length;
   const pr = document.createElement("div"); pr.className = "prog";
-  pr.innerHTML = `Ai terminat <b>${facute}</b> din ${LECTII.length} lecții<div class="bar"><i style="width:${100 * facute / LECTII.length}%"></i></div>`;
+  pr.innerHTML = `Ai terminat <b>${facute}</b> din ${baza.length} lecții<div class="bar"><i style="width:${100 * facute / baza.length}%"></i></div>`;
   nav.appendChild(pr);
   LECTII.forEach((l, k) => {
     if (l.grup) { const h = document.createElement("h2"); h.textContent = l.grup; nav.appendChild(h); }
@@ -1072,8 +1219,18 @@ function renderList() {
     const s = stele(l);
     b.innerHTML = `<span class="n">${k + 1}</span><span class="t">${l.t}</span><span class="s">${s ? "★".repeat(s) : l.nou ? '<span class="nou">NOU</span>' : ""}</span>`;
     b.onclick = () => pick(k);
-    nav.appendChild(b);
+    if (esteMea(l)) {
+      const r = document.createElement("div"); r.className = "lesrow";
+      const x = document.createElement("button"); x.className = "del"; x.textContent = "✕"; x.title = "Șterge melodia"; x.setAttribute("aria-label", "Șterge " + l.t);
+      x.onclick = () => stergeMelodie(l);
+      r.append(b, x); nav.appendChild(r);
+    } else nav.appendChild(b);
   });
+  if (!LECTII.some(esteMea)) { const h = document.createElement("h2"); h.textContent = "Melodiile mele"; nav.appendChild(h); }
+  const add = document.createElement("button"); add.className = "les add";
+  add.innerHTML = `<span class="n">＋</span><span class="t">Adaugă melodie din fișier MIDI</span><span class="s"></span>`;
+  add.onclick = () => $("midiIn").click();
+  nav.appendChild(add);
 }
 // la „Începe”, portativul și clapele intră amândouă în ecran (dacă nu erau deja)
 function aratăPractica() {
@@ -1359,7 +1516,7 @@ function arataModuri(on) {
 }
 
 // ===================== PORNIRE =====================
-loadP();
+loadP(); syncMelodii();
 buildMini(); buildKb(); buildFull();
 let startL = Math.max(0, LECTII.findIndex(l => l.id === P.lectie));
 pick(startL);
