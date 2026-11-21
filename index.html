@@ -27,10 +27,10 @@
 html,body{margin:0}
 body{background:var(--bg);color:var(--ink);font:15px/1.5 var(--body)}
 [hidden]{display:none!important}
-.wrap{max-width:1180px;margin:0 auto;padding-block:20px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:18px}
+.wrap{max-width:1440px;margin:0 auto;padding-block:10px 30px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:10px}
 header{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;justify-content:space-between}
-h1{font-family:var(--display);font-weight:800;font-size:clamp(26px,4vw,38px);margin:0;letter-spacing:-.01em;text-wrap:balance}
-h1 small{display:block;font:500 13px/1.4 var(--body);color:var(--muted);letter-spacing:.02em}
+h1{font-family:var(--display);font-weight:800;font-size:clamp(20px,2.4vw,28px);margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 small{display:block;font:500 12px/1.3 var(--body);color:var(--muted);letter-spacing:.02em}
 .conn{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .pill{display:inline-flex;align-items:center;gap:8px;padding:7px 12px;border-radius:999px;border:1px solid var(--line);background:var(--panel);font-size:13px;color:var(--muted)}
 .dot{width:9px;height:9px;border-radius:50%;background:var(--line)}
@@ -45,14 +45,16 @@ button.cont .av{width:24px;height:24px;border-radius:50%;background:var(--accent
 button.cont .av img{width:100%;height:100%;object-fit:cover}
 button.cont small{font-weight:500;color:var(--muted);font-size:12px}
 select,input[type=number]{font:inherit;border:1px solid var(--line);border-radius:9px;background:var(--panel);color:var(--ink);padding:7px 10px}
-.grid{display:grid;grid-template-columns:290px minmax(0,1fr);gap:18px;align-items:start}
+.grid{display:grid;grid-template-columns:240px minmax(0,1fr);gap:12px;align-items:start}
+/* lista de lecții are scroll-ul ei, ca pagina din dreapta să rămână pe loc */
+@media (min-width:861px){.lessons{position:sticky;top:10px;max-height:calc(100vh - 20px);overflow:auto}}
 @media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}}
-.lessons{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:10px;display:grid;gap:4px}
+.lessons{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:8px;display:grid;gap:2px;align-content:start}
 .lessons h2{font:700 11px/1 var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:10px 8px 6px}
 .lessons .prog{margin:4px 8px 8px;font-size:13px;color:var(--muted)}
 .lessons .prog .bar{height:6px;border-radius:9px;background:var(--line);margin-top:6px;overflow:hidden}
 .lessons .prog .bar i{display:block;height:100%;background:var(--good);border-radius:9px}
-.les{display:grid;grid-template-columns:28px 1fr auto;gap:8px;align-items:center;text-align:left;border:0;background:none;padding:9px 8px;border-radius:9px}
+.les{display:grid;grid-template-columns:24px 1fr auto;gap:6px;align-items:center;text-align:left;border:0;background:none;padding:6px 8px;font-size:14px;border-radius:9px}
 .les:hover{background:color-mix(in srgb,var(--accent) 9%,transparent)}
 .les.sel{background:color-mix(in srgb,var(--accent) 16%,transparent)}
 .les .n{font:700 13px var(--body);color:var(--muted);text-align:center}
@@ -61,23 +63,23 @@ select,input[type=number]{font:inherit;border:1px solid var(--line);border-radiu
 .les .nou{font:700 10px var(--body);letter-spacing:.06em;color:var(--accent);border:1px solid var(--accent);border-radius:5px;padding:1px 5px}
 .les.moduri{border:1px solid var(--line);margin-bottom:4px}
 .les.moduri .n{font-size:17px}
-.stage{display:grid;gap:14px;min-width:0}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;min-width:0}
+.stage{display:grid;gap:10px;min-width:0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:12px 16px;min-width:0}
 .title{display:flex;flex-wrap:wrap;gap:10px;align-items:baseline;justify-content:space-between}
-.title h2{font-family:var(--display);font-weight:600;font-size:26px;margin:0}
-.desc{color:var(--muted);margin:6px 0 0;max-width:68ch}
-.controls{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;align-items:center}
+.title h2{font-family:var(--display);font-weight:600;font-size:21px;margin:0}
+.desc{color:var(--muted);margin:2px 0 0;font-size:14px;line-height:1.4}
+.controls{display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:8px;align-items:center}
 label.chk{display:inline-flex;gap:6px;align-items:center;font-size:14px;color:var(--muted);margin-left:4px}
 button.q{border-radius:999px;padding:4px 11px;font-size:13px;font-weight:600}
-.msg{min-height:58px;display:flex;align-items:center;gap:14px;font-size:19px;font-weight:600}
-.msg .big{font-family:var(--display);font-size:40px;line-height:1;min-width:2ch;white-space:nowrap;flex-shrink:0}
+.msg{min-height:38px;display:flex;align-items:center;gap:12px;font-size:17px;font-weight:600;line-height:1.3}
+.msg .big{font-family:var(--display);font-size:28px;line-height:1;min-width:2ch;white-space:nowrap;flex-shrink:0}
 .msg.ok{color:var(--good)} .msg.bad{color:var(--bad)}
 .stats{display:flex;gap:18px;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
 .stats b{color:var(--ink)}
 /* bara cu bătăile și cât ții nota (doar în modul cu ritm) */
-.ritmbar{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;margin:4px 0 10px;padding:10px 12px;border:1px solid var(--line);border-radius:10px}
+.ritmbar{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;margin:4px 0 6px;padding:6px 12px;border:1px solid var(--line);border-radius:10px}
 .beats{display:flex;gap:8px;align-items:center}
-.beats .bt{width:34px;height:34px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font:700 14px var(--body);color:var(--muted);transition:background .06s}
+.beats .bt{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font:700 14px var(--body);color:var(--muted);transition:background .06s}
 .beats .bt.on{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
 .beats .bt.ci.on{background:var(--muted);border-color:var(--muted)}
 .beats .cap{font-size:13px;color:var(--muted);margin-left:4px}
@@ -86,9 +88,11 @@ button.q{border-radius:999px;padding:4px 11px;font-size:13px;font-weight:600}
 .hb i{display:block;height:100%;width:0;background:var(--target);border-radius:9px}
 .hb.gata i{background:var(--good)}
 .staffbox{overflow-x:auto}
-svg.staff{display:block;width:100%;min-width:520px;height:180px}
+svg.staff{display:block;width:100%;min-width:520px;height:calc(var(--h,180) * .65px)}
+/* claviatura stă în același chenar cu portativul, ca să le vezi pe amândouă deodată */
+.claviatura{border-top:1px solid var(--line);margin-top:6px;padding-top:10px}
 .kbbox{overflow-x:auto;padding-bottom:6px}
-.pedal{display:flex;align-items:center;gap:10px;margin:0 0 10px;padding:8px 12px;border:1px solid var(--line);border-radius:10px;font-size:14px;color:var(--muted);transition:background .1s,border-color .1s}
+.pedal{display:flex;align-items:center;gap:10px;margin:0 0 8px;padding:4px 10px;border:1px solid var(--line);border-radius:10px;font-size:14px;color:var(--muted);transition:background .1s,border-color .1s}
 .pedal .pdot{width:14px;height:14px;border-radius:50%;background:#555;flex-shrink:0}
 .pedal b{color:var(--ink)}
 .pedal .pnote{font-size:12px;margin-left:auto}
@@ -96,22 +100,22 @@ svg.staff{display:block;width:100%;min-width:520px;height:180px}
 .pedal.on .pdot{background:var(--target);box-shadow:0 0 10px var(--target)}
 .pedal.on b{color:var(--target)}
 .minicap{display:flex;justify-content:space-between;gap:10px;font-size:12px;color:var(--muted);margin-bottom:6px;letter-spacing:.04em}
-.mini{position:relative;height:44px;margin-bottom:16px}
-.mini .mw{position:absolute;top:0;height:44px;background:var(--white-key);border:1px solid #b9b0a3;border-radius:0 0 3px 3px}
-.mini .mb{position:absolute;top:0;height:27px;background:var(--black-key);z-index:2}
+.mini{position:relative;height:26px;margin-bottom:10px}
+.mini .mw{position:absolute;top:0;height:26px;background:var(--white-key);border:1px solid #b9b0a3;border-radius:0 0 3px 3px}
+.mini .mb{position:absolute;top:0;height:16px;background:var(--black-key);z-index:2}
 .mini .mw.target,.mini .mb.target{background:var(--target)}
 .mini .mw.down,.mini .mb.down{background:#8fd3b0}
 .mini .c4{background:color-mix(in srgb,var(--accent) 35%,var(--white-key))}
-.mini .zoom{position:absolute;top:-5px;height:54px;border:3px solid var(--accent);border-radius:7px;z-index:3;pointer-events:none;transition:left .5s ease,width .5s ease,opacity .3s}
+.mini .zoom{position:absolute;top:-4px;height:34px;border:3px solid var(--accent);border-radius:7px;z-index:3;pointer-events:none;transition:left .5s ease,width .5s ease,opacity .3s}
 .kb.zoomin{animation:zoomin .5s ease}
 @keyframes zoomin{from{transform:scaleX(.35);opacity:.3}to{transform:none;opacity:1}}
 .kb.tot{min-width:1250px}
 .kb.tot .wk{font-size:9px;padding-bottom:5px}
 .kb.tot .finger{font-size:13px}
-.kb{position:relative;height:190px;min-width:760px;user-select:none;touch-action:manipulation}
+.kb{position:relative;height:140px;min-width:760px;user-select:none;touch-action:manipulation}
 .wk,.bk{position:absolute;top:0;border-radius:0 0 8px 8px;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;font-size:11px;padding-bottom:8px;transition:background .08s}
-.wk{background:var(--white-key);border:1px solid #b9b0a3;height:190px;color:#5b544b;z-index:1}
-.bk{background:var(--black-key);height:118px;z-index:2;color:#bbb;border:1px solid #000}
+.wk{background:var(--white-key);border:1px solid #b9b0a3;height:140px;color:#5b544b;z-index:1}
+.bk{background:var(--black-key);height:86px;z-index:2;color:#bbb;border:1px solid #000}
 .wk .lab{font-weight:700;color:#3f3a33}
 .wk.c4 .lab{color:var(--accent)}
 .de{font:800 15px var(--body);color:#1d1a17;line-height:1;margin-bottom:3px}
@@ -119,17 +123,19 @@ svg.staff{display:block;width:100%;min-width:520px;height:180px}
 .wk.c4 .de{color:#d0021b}
 .kb.tot .de{font-size:10px}
 .wk.wrong .de,.bk.wrong .de{color:#fff}
-.wk.c4::after{content:"★";position:absolute;bottom:52px;font-size:14px;color:var(--accent)}
+.wk.c4::after{content:"★";position:absolute;bottom:48px;font-size:14px;color:var(--accent)}
 .wk.target,.bk.target{background:var(--target)}
 .wk.down,.bk.down{background:#8fd3b0}
 .wk.wrong,.bk.wrong{background:var(--bad);color:#fff}
-.finger{font:800 18px var(--display);color:#1d1a17;margin-bottom:6px}
+.finger{font:800 17px var(--display);color:#1d1a17;margin-bottom:2px}
 .help{font-size:14px;color:var(--muted);display:grid;gap:6px}
 .help b{color:var(--ink)}
 kbd{font:600 12px var(--body);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:1px 6px;background:var(--panel)}
 /* explicația pentru ritm */
 .rh{display:grid;gap:12px;font-size:15px}
-.rh h3{font-family:var(--display);font-weight:600;font-size:21px;margin:0}
+.rh h3{font-family:var(--display);font-weight:600;font-size:19px;margin:0}
+.rhtop{display:flex;justify-content:space-between;align-items:center;gap:10px}
+button.x{border-radius:999px;padding:4px 12px;font-size:13px;font-weight:600}
 .rh ol{margin:0;padding-left:22px;display:grid;gap:8px}
 .rh li b{color:var(--ink)}
 .durs{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px}
@@ -218,7 +224,7 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
       </div>
 
       <div class="card rh" id="ritmHelp" hidden>
-        <h3>Ce faci în modul „Cu ritm”</h3>
+        <div class="rhtop"><h3>Ce faci în modul „Cu ritm”</h3><button class="x" id="ritmX">✕ Ascunde</button></div>
         <ol>
           <li><b>Apeși „Începe” și asculți.</b> Metronomul bate de 4 ori „tic, tic, tic, tic” ca să-ți arate viteza. Cercurile de sus se aprind gri și vezi numărătoarea 3, 2, 1. <b>Încă nu cânți.</b></li>
           <li><b>Pe primul „tic” de după numărătoare cânți prima notă.</b> Cercurile devin verzi. De aici metronomul nu se mai oprește și nici nu te mai așteaptă: fiecare notă vine la rândul ei, ca într-o melodie adevărată.</li>
@@ -234,20 +240,19 @@ dialog::backdrop{background:rgba(0,0,0,.45)}
         </ol>
       </div>
 
-      <div class="card">
+      <div class="card" id="practica">
         <div class="msg" id="msg"><span class="big" id="msgBig">🎹</span><span id="msgTxt">Alege o lecție din stânga și apasă „Începe”.</span></div>
         <div class="ritmbar" id="ritmbar" hidden>
           <div class="beats" id="beats"></div>
           <div class="hold"><span id="holdTxt">Când apeși o notă, aici vezi cât s-o ții.</span><div class="hb" id="hb"><i id="holdFill"></i></div></div>
         </div>
         <div class="staffbox"><svg class="staff" id="staff" viewBox="0 0 900 180" role="img" aria-label="Portativul cu notele lecției"></svg></div>
-      </div>
-
-      <div class="card">
+        <div class="claviatura">
         <div class="minicap"><span>Tot pianul, 88 de clape</span><span id="zoomTxt">Apasă „Începe” și mă apropii de clapele din lecție</span></div>
         <div class="mini" id="mini"><div class="zoom" id="zoom" style="opacity:0"></div></div>
         <div class="pedal" id="pedal" title="Pedala de sustain (cea de la picior)"><span class="pdot"></span><span>Pedala: <b id="pedalTxt">ridicată</b></span><span class="pnote" id="pedalNote">Apasă pedala ca să verifici; aici se vede când e apăsată.</span></div>
         <div class="kbbox"><div class="kb" id="kb"></div></div>
+        </div>
       </div>
 
       <div class="card help">
@@ -663,7 +668,7 @@ const diat = m => Math.floor(m / 12) * 7 + (BEM ? STEP_B : STEP_D)[m % 12];
 function drawStaff() {
   const svg = $("staff"), G = 14, les = LECTII[L], cheie = les.cheie || "sol", mare = cheie === "mare";
   const H = mare ? 250 : 180;
-  svg.setAttribute("viewBox", `0 0 900 ${H}`); svg.style.height = H + "px";
+  svg.setAttribute("viewBox", `0 0 900 ${H}`); svg.style.height = ""; svg.style.setProperty("--h", H);
   const SOL = { ref: diat(64), top: mare ? 36 : 50, c: "sol" }, FA = { ref: diat(43), top: mare ? 136 : 50, c: "fa" };
   const port = mare ? [SOL, FA] : cheie === "fa" ? [FA] : [SOL];
   const unde = m => mare ? (m >= 60 ? SOL : FA) : port[0];
@@ -864,6 +869,7 @@ function click(t, accent, loud) {
 function ritmUI() {
   const on = $("ritm").checked;
   $("ritmbar").hidden = !on;
+  if (!on && !$("ritmHelp").hidden) arataRitmHelp(false); // fără ritm, explicația se închide singură
   const mas = LECTII[L].masura || 4;
   $("beats").innerHTML = Array.from({ length: mas }, (_, k) => `<span class="bt" data-b="${k}">${k + 1}</span>`).join("") + `<span class="cap" id="beatCap">bătăile</span>`;
   $("holdTxt").textContent = "Când apeși o notă, aici vezi cât s-o ții."; $("holdFill").style.width = "0"; $("hb").classList.remove("gata");
@@ -1069,15 +1075,21 @@ function renderList() {
     nav.appendChild(b);
   });
 }
+// la „Începe”, portativul și clapele intră amândouă în ecran (dacă nu erau deja)
+function aratăPractica() {
+  const r = $("practica").getBoundingClientRect();
+  if (r.top < 0 || r.bottom > innerHeight) $("practica").scrollIntoView({ behavior: "smooth", block: r.height > innerHeight ? "start" : "end" });
+}
 $("startBtn").onclick = () => {
   if (R && running) { stopRitm(); setMsg("■", "Oprit. Apasă „Începe” ca s-o iei de la capăt.", ""); $("startBtn").textContent = "Începe"; update(); return; }
-  audio(); start();
+  audio(); start(); aratăPractica();
 };
 $("bpm").oninput = () => { $("bpmTxt").textContent = $("bpm").value; };
 $("bpm").onchange = () => { P.viteza[LECTII[L].id] = +$("bpm").value; saveP(); };
 $("ritm").onchange = () => { stopRitm(); R = null; $("startBtn").textContent = "Începe"; ritmUI(); if ($("ritm").checked && !P.vazutRitm) { arataRitmHelp(true); P.vazutRitm = 1; saveP(); } update(); };
 function arataRitmHelp(on) { $("ritmHelp").hidden = !on; $("ritmQ").setAttribute("aria-expanded", on); $("ritmQ").textContent = on ? "Ascunde explicația" : "Ce trebuie să fac?"; if (on) $("ritmHelp").scrollIntoView({ behavior: "smooth", block: "nearest" }); }
 $("ritmQ").onclick = () => arataRitmHelp($("ritmHelp").hidden);
+$("ritmX").onclick = () => arataRitmHelp(false);
 $("listenBtn").onclick = () => { audio(); listen(); };
 $("hint").onchange = update;
 matchMedia("(prefers-color-scheme: dark)").addEventListener("change", drawStaff);
